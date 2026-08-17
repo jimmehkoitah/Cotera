@@ -122,13 +122,20 @@ def has_any_value(row: dict[str, str], names: list[str]) -> bool:
 
 
 def build_dedupe_key(row: dict[str, str], args: argparse.Namespace) -> str:
-    """company|job_url|primary_email_or_linkedin, normalized for stable matching."""
-    company = resolve_column(row, args.company_col)
+    """company_name|primary_job_url, normalized for stable matching.
+
+    Per the Cotera spec, an unparseable company falls back to "Unknown Company"
+    so the job URL still carries the identity.
+    """
+    company = resolve_column(row, args.company_col) or "Unknown Company"
     job_url = resolve_column(row, args.job_url_col)
-    contact = resolve_column(row, args.email_col) or resolve_column(
-        row, args.linkedin_col
-    )
-    return "|".join(part.strip().lower() for part in (company, job_url, contact))
+    parts = [company, job_url]
+    if args.contact_in_dedupe_key:
+        parts.append(
+            resolve_column(row, args.email_col)
+            or resolve_column(row, args.linkedin_col)
+        )
+    return "|".join(part.strip().lower() for part in parts)
 
 
 def build_payload(row: dict[str, str], args: argparse.Namespace) -> dict:
@@ -259,6 +266,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--email-col", nargs="+", default=["emails", "Email"])
     parser.add_argument(
         "--linkedin-col", nargs="+", default=["linkedins", "LinkedIn URL"]
+    )
+    parser.add_argument(
+        "--contact-in-dedupe-key",
+        action="store_true",
+        help="Append the primary email/LinkedIn to the dedupe key "
+        "(default: company|primary_job_url, per the Cotera spec)",
     )
     parser.add_argument(
         "--require",
