@@ -36,12 +36,12 @@ from pathlib import Path
 
 DEFAULT_AGENT_ID = "92e07017-49a4-54f4-9913-f887bc2284f8"
 DEFAULT_GOOGLE_DOC_ID = "1jmuUvzNz55xQTAo29Vwh5eEifgCCqew416zRM2UGReM"
-DEFAULT_API_BASE = "https://api.cotera.co"
-# Path template for the agent-run endpoint. Overridable because the exact route
-# is deployment-specific -- see README.md ("Pointing at the real endpoint").
-DEFAULT_RUN_PATH = "/v1/agents/{agent_id}/runs"
-# Route that accepts a message for Coco. Also unverified -- set COTERA_COCO_PATH.
-DEFAULT_COCO_PATH = "/v1/coco/messages"
+DEFAULT_API_BASE = "https://app.cotera.co"
+# Routes and payload shape are from Cotera's public OpenAPI spec at
+# https://app.cotera.co/api/docs/public-json (see docs/deploy/run-via-api).
+# Both endpoints take {"prompt": ...} and return {"success": bool, "result": str}.
+DEFAULT_RUN_PATH = "/api/v1/resource/agent/{agent_id}/invoke"
+DEFAULT_COCO_PATH = "/api/v1/resource/coco/invoke"
 
 RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
 MAX_ATTEMPTS = 5
@@ -161,20 +161,16 @@ def build_payload(row: dict[str, str], args: argparse.Namespace) -> dict:
 
     if args.mode == "coco":
         # Coco runs the focused agent and writes the doc; we only hand it the row.
-        return {
-            "_dedupe_key": dedupe_key,
-            args.message_field: render_instruction(args.instruction, row_text, args),
-        }
+        prompt = render_instruction(args.instruction, row_text, args)
+    else:
+        # Straight to the focused agent: the row is the whole prompt, and the
+        # agent decides what to do with it. Nothing is written to the doc.
+        prompt = row_text
 
     return {
         "_dedupe_key": dedupe_key,
-        "agent_id": args.agent_id,
-        "google_doc_id": args.google_doc_id,
-        "raw_hiring_row": row_text,
-        "output_destination": "google_doc",
-        "write_mode": "insert_in_existing_structure",
-        "dedupe_key": dedupe_key,
-        "preserve_agent_output_exactly": True,
+        args.message_field: prompt,
+        "triggerSource": args.trigger_source,
     }
 
 
@@ -212,10 +208,17 @@ def run_agent(payload: dict, args: argparse.Namespace) -> dict:
             with urllib.request.urlopen(request, timeout=args.timeout) as response:
                 raw = response.read().decode("utf-8")
                 try:
-                    return json.loads(raw) if raw else {}
+                    decoded = json.loads(raw) if raw else {}
                 except json.JSONDecodeError:
                     # Some deployments return the agent's plain-text output directly.
-                    return {"output": raw}
+                    return {"result": raw}
+                # Cotera answers 201 with {"success": false} when the run itself
+                # failed, so an HTTP success is not enough to call the row done.
+                if decoded.get("success") is False:
+                    raise RuntimeError(
+                        f"run reported success=false: {json.dumps(decoded)[:300]}"
+                    )
+                return decoded
         except urllib.error.HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")[:500]
             last_error = RuntimeError(f"HTTP {exc.code}: {detail}")
@@ -328,8 +331,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--message-field",
-        default="message",
-        help="JSON field Coco expects the instruction in (default: message)",
+        default="prompt",
+        help="JSON field carrying the instruction (default: prompt)",
+    )
+    parser.add_argument(
+        "--trigger-source",
+        default="system",
+        help="Cotera triggerSource recorded on each run (default: system)",
     )
     parser.add_argument(
         "--concurrency",
