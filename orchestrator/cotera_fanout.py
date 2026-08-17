@@ -40,6 +40,8 @@ DEFAULT_API_BASE = "https://api.cotera.co"
 # Path template for the agent-run endpoint. Overridable because the exact route
 # is deployment-specific -- see README.md ("Pointing at the real endpoint").
 DEFAULT_RUN_PATH = "/v1/agents/{agent_id}/runs"
+# Route that accepts a message for Coco. Also unverified -- set COTERA_COCO_PATH.
+DEFAULT_COCO_PATH = "/v1/coco/messages"
 
 RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
 MAX_ATTEMPTS = 5
@@ -138,14 +140,40 @@ def build_dedupe_key(row: dict[str, str], args: argparse.Namespace) -> str:
     return "|".join(part.strip().lower() for part in parts)
 
 
+def render_instruction(template: str, row_text: str, args: argparse.Namespace) -> str:
+    """Fill the Coco instruction template.
+
+    Only these three placeholders are substituted. ``{{Company Name}}`` and
+    ``{{Exact Agent Output}}`` are left intact on purpose -- they are literal
+    instructions telling Coco what to write, not values we supply.
+    """
+    return (
+        template.replace("{{agent_id}}", args.agent_id)
+        .replace("{{google_doc_id}}", args.google_doc_id)
+        .replace("{{raw_hiring_row}}", row_text)
+    )
+
+
 def build_payload(row: dict[str, str], args: argparse.Namespace) -> dict:
+    """Build the request body, plus the dedupe key the ledger tracks it by."""
+    row_text = build_raw_hiring_row(row, args.columns)
+    dedupe_key = build_dedupe_key(row, args)
+
+    if args.mode == "coco":
+        # Coco runs the focused agent and writes the doc; we only hand it the row.
+        return {
+            "_dedupe_key": dedupe_key,
+            args.message_field: render_instruction(args.instruction, row_text, args),
+        }
+
     return {
+        "_dedupe_key": dedupe_key,
         "agent_id": args.agent_id,
         "google_doc_id": args.google_doc_id,
-        "raw_hiring_row": build_raw_hiring_row(row, args.columns),
+        "raw_hiring_row": row_text,
         "output_destination": "google_doc",
         "write_mode": "insert_in_existing_structure",
-        "dedupe_key": build_dedupe_key(row, args),
+        "dedupe_key": dedupe_key,
         "preserve_agent_output_exactly": True,
     }
 
@@ -161,8 +189,12 @@ def run_agent(payload: dict, args: argparse.Namespace) -> dict:
     Returns the decoded response body. Raises on non-retryable errors and on
     exhausting retries, so the caller can record the row as failed.
     """
-    url = args.api_base.rstrip("/") + args.run_path.format(agent_id=args.agent_id)
-    body = json.dumps(payload).encode("utf-8")
+    path = args.coco_path if args.mode == "coco" else args.run_path
+    url = args.api_base.rstrip("/") + path.format(agent_id=args.agent_id)
+    # _dedupe_key is bookkeeping for the ledger, not part of the API contract.
+    body = json.dumps({k: v for k, v in payload.items() if k != "_dedupe_key"}).encode(
+        "utf-8"
+    )
 
     last_error: Exception | None = None
     for attempt in range(1, MAX_ATTEMPTS + 1):
@@ -281,10 +313,30 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "(e.g. --require emails linkedins skips companies with no contact)",
     )
     parser.add_argument(
+        "--mode",
+        choices=["coco", "agent"],
+        default="coco",
+        help="coco: send the instruction to Coco, which runs the agent AND writes "
+        "the doc. agent: call the focused agent directly and write nothing "
+        "(default: coco)",
+    )
+    parser.add_argument(
+        "--instruction-file",
+        type=Path,
+        default=Path(__file__).with_name("coco_instruction.txt"),
+        help="Instruction template used in coco mode",
+    )
+    parser.add_argument(
+        "--message-field",
+        default="message",
+        help="JSON field Coco expects the instruction in (default: message)",
+    )
+    parser.add_argument(
         "--concurrency",
         type=int,
-        default=5,
-        help="Rows in flight at once (default: 5)",
+        help="Rows in flight at once (default: 1 in coco mode, 5 in agent mode). "
+        "Appending to one doc is a read-modify-write, so parallel coco runs can "
+        "interleave entries -- raise this only if Cotera confirms writes are locked",
     )
     parser.add_argument("--limit", type=int, help="Process at most N rows")
     parser.add_argument(
@@ -317,8 +369,26 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--run-path", default=os.environ.get("COTERA_RUN_PATH", DEFAULT_RUN_PATH)
     )
+    parser.add_argument(
+        "--coco-path", default=os.environ.get("COTERA_COCO_PATH", DEFAULT_COCO_PATH)
+    )
     args = parser.parse_args(argv)
     args.api_key = os.environ.get("COTERA_API_KEY", "")
+
+    if args.concurrency is None:
+        # One at a time in coco mode: every run appends to the same document.
+        args.concurrency = 1 if args.mode == "coco" else 5
+
+    args.instruction = ""
+    if args.mode == "coco":
+        try:
+            args.instruction = args.instruction_file.read_text(encoding="utf-8")
+        except OSError as exc:
+            parser.error(f"could not read {args.instruction_file}: {exc}")
+        if "{{raw_hiring_row}}" not in args.instruction:
+            parser.error(
+                f"{args.instruction_file} has no {{{{raw_hiring_row}}}} placeholder"
+            )
     return args
 
 
@@ -357,7 +427,7 @@ def main(argv: list[str] | None = None) -> int:
     seen_this_run: set[str] = set()
     skipped_done = skipped_dupe = 0
     for payload in payloads:
-        key = payload["dedupe_key"]
+        key = payload["_dedupe_key"]
         if key in seen_this_run:
             skipped_dupe += 1
             continue
@@ -395,7 +465,7 @@ def main(argv: list[str] | None = None) -> int:
         futures = {pool.submit(dispatch, p): p for p in queued}
         for done, future in enumerate(as_completed(futures), start=1):
             payload = futures[future]
-            key = payload["dedupe_key"]
+            key = payload["_dedupe_key"]
             try:
                 _, response = future.result()
             except Exception as exc:  # noqa: BLE001 - every row failure is recorded

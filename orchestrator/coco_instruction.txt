@@ -1,0 +1,25 @@
+Run focused agent {{agent_id}} on the raw row below.
+
+Then take the exact finished email returned by the agent and append it into this Google Doc:
+
+Google Doc ID:
+{{google_doc_id}}
+
+Append format:
+
+{{Company Name}}
+
+{{Exact Agent Output}}
+
+Rules:
+- Do not only return the email.
+- Do not stop after running the focused agent.
+- After generating the email, update the Google Doc.
+- Use the parsed company name as the section header.
+- Preserve the agent output exactly.
+- Insert at the end of the Google Doc before the final trailing newline.
+- Keep the same structure as the existing entries.
+- If the company already exists in the doc, skip it unless overwrite is explicitly requested.
+
+Raw row:
+{{raw_hiring_row}}

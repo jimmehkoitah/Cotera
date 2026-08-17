@@ -9,6 +9,25 @@ sheet row ──┼──► focused agent 92e07017-… ──► agent writes i
 sheet row ──┘        (N runs in parallel)
 ```
 
+## Two modes
+
+**`--mode coco` (default).** Sends the instruction in `coco_instruction.txt` to
+Coco, one message per row. Coco runs the focused agent *and* appends to the
+Google Doc. The doc must be shared as Editor with
+`coterabot@cotera-manual.iam.gserviceaccount.com`.
+
+Concurrency defaults to **1** in this mode. Every run appends to the same
+document, and "read the doc, compute the end index, insert there" is a
+read-modify-write: two concurrent runs can both read the same end index and the
+second inserts into the middle of the first entry. Google Docs accepts that
+silently -- a stale index is still a valid index -- so the failure looks like
+interleaved text rather than an error. Raise `--concurrency` only if Cotera
+confirms Coco's doc writes are serialized or use a revision check.
+
+**`--mode agent`.** Calls the focused agent directly with the structured payload
+below and writes nothing. Use it to inspect the generated emails without
+touching the doc. Concurrency defaults to 5, since nothing is shared.
+
 ## What this orchestrator does and does not do
 
 | Does | Does not |
