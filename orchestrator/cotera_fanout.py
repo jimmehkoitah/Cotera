@@ -101,13 +101,24 @@ def build_raw_hiring_row(row: dict[str, str], columns: list[str] | None) -> str:
 
 
 def resolve_column(row: dict[str, str], names: list[str]) -> str:
-    """Return the first non-empty value among ``names`` (case-insensitive)."""
+    """Return the first entry of the first non-empty column among ``names``.
+
+    Columns like ``job_links``, ``emails`` and ``linkedins`` hold several
+    newline-separated entries per company. The dedupe key needs one stable
+    value, so this takes the first entry -- the whole field still reaches the
+    agent inside raw_hiring_row.
+    """
     lowered = {k.lower(): v for k, v in row.items()}
     for name in names:
         value = lowered.get(name.lower(), "").strip()
         if value:
-            return value
+            return value.splitlines()[0].strip()
     return ""
+
+
+def has_any_value(row: dict[str, str], names: list[str]) -> bool:
+    lowered = {k.lower(): v for k, v in row.items()}
+    return any(lowered.get(name.lower(), "").strip() for name in names)
 
 
 def build_dedupe_key(row: dict[str, str], args: argparse.Namespace) -> str:
@@ -241,13 +252,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         nargs="+",
         help="Subset of columns to send as raw_hiring_row (default: every column)",
     )
-    parser.add_argument("--company-col", nargs="+", default=["Company"])
+    parser.add_argument("--company-col", nargs="+", default=["company", "Company"])
     parser.add_argument(
-        "--job-url-col", nargs="+", default=["Job URL", "Job Link", "Posting URL"]
+        "--job-url-col", nargs="+", default=["job_links", "Job URL", "Job Link"]
     )
-    parser.add_argument("--email-col", nargs="+", default=["Email", "Primary Email"])
+    parser.add_argument("--email-col", nargs="+", default=["emails", "Email"])
     parser.add_argument(
-        "--linkedin-col", nargs="+", default=["LinkedIn URL", "LinkedIn"]
+        "--linkedin-col", nargs="+", default=["linkedins", "LinkedIn URL"]
+    )
+    parser.add_argument(
+        "--require",
+        nargs="+",
+        metavar="COL",
+        help="Skip rows where all of these columns are empty "
+        "(e.g. --require emails linkedins skips companies with no contact)",
     )
     parser.add_argument(
         "--concurrency",
@@ -308,6 +326,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"no data rows found in {args.input}", file=sys.stderr)
         return 2
 
+    skipped_empty = 0
+    if args.require:
+        kept = [row for row in rows if has_any_value(row, args.require)]
+        skipped_empty = len(rows) - len(kept)
+        rows = kept
+
     try:
         payloads = [build_payload(row, args) for row in rows]
     except ConfigError as exc:
@@ -333,10 +357,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.limit:
         queued = queued[: args.limit]
 
-    print(
-        f"{len(rows)} rows read | {len(queued)} to run | "
-        f"{skipped_done} already done | {skipped_dupe} duplicate keys"
-    )
+    summary = [
+        f"{len(queued)} to run",
+        f"{skipped_done} already done",
+        f"{skipped_dupe} duplicate keys",
+    ]
+    if args.require:
+        summary.append(f"{skipped_empty} missing {'/'.join(args.require)}")
+    print(f"{len(rows) + skipped_empty} rows read | " + " | ".join(summary))
 
     if args.dry_run:
         for payload in queued:
