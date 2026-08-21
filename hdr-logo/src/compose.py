@@ -120,6 +120,34 @@ def multiscale_bloom(mask, sigmas_frac, weights, ref_px):
 # Scene
 # --------------------------------------------------------------------------
 
+# The logo's own gradient: stops and axis lifted straight out of cotera-logo.svg,
+# which runs bottom-right (dark) to top-left (bright) across a 200x200 box.
+BRAND_GRADIENT = [
+    (0.00, '#322f82'), (0.19, '#403fa4'), (0.42, '#4f50c5'),
+    (0.64, '#5a5cde'), (0.83, '#6063ec'), (1.00, '#6366f2'),
+]
+BRAND_GRADIENT_AXIS = ((174.41, 170.89), (25.26, 28.80))   # in the 200x200 viewBox
+
+
+def brand_gradient(w, h):
+    """The Cotera gradient across an arbitrary canvas, interpolated in LINEAR
+    light. Interpolating the stops in sRGB instead darkens the midpoints --
+    the classic muddy-gradient artefact."""
+    (x0, y0), (x1, y1) = BRAND_GRADIENT_AXIS
+    sx, sy = w / 200.0, h / 200.0
+    ax, ay = (x1 - x0) * sx, (y1 - y0) * sy
+    denom = ax * ax + ay * ay
+    xx, yy = np.meshgrid(np.arange(w, dtype=np.float64), np.arange(h, dtype=np.float64))
+    t = np.clip(((xx - x0 * sx) * ax + (yy - y0 * sy) * ay) / denom, 0.0, 1.0)
+
+    offs = np.array([o for o, _ in BRAND_GRADIENT])
+    cols = np.array([k.hex_to_linear_rgb(c) for _, c in BRAND_GRADIENT])
+    out = np.empty((h, w, 3), np.float64)
+    for ch in range(3):
+        out[..., ch] = np.interp(t, offs, cols[:, ch])
+    return out
+
+
 DEFAULTS = dict(
     canvas=1200,          # square shorthand; width/height override it
     supersample=3,
@@ -143,7 +171,8 @@ DEFAULTS = dict(
     tile_nits=203.0,          # what #ffffff *inside the tile artwork* means, in
                               # nits. At SDR white the tile is exactly the brand
                               # colour; raise it to lift the whole tile.
-    tile_frac=0.80,           # how much of the canvas the tile fills
+    tile_frac=0.80,           # how much of the canvas the tile fills; >1.0 bleeds
+    clip_bloom_to_tile=True,  # keep the glow inside the logo, no edge ring
     tile_svg='assets/cotera-tile.svg',
     mark_hex_indigo='#6366f2',  # Cotera indigo, bright stop
     core_hex='#c9c8ff',       # white-hot core inside the indigo mark
@@ -182,17 +211,30 @@ def build_layers(svg_path, cfg=None):
         # rasterising both at one size and pasting at one offset keeps them in
         # exact register -- no independent bbox fitting, no drift.
         r = int(round(c['tile_frac'] * min(sw, sh)))
-        top, left = (sh - r) // 2 + int(round(c['y_shift'] * sh)), (sw - r) // 2
-        top = max(0, min(sh - r, top))
+        top = (sh - r) // 2 + int(round(c['y_shift'] * sh))
+        left = (sw - r) // 2
 
-        tile = np.zeros((sh, sw, 4), np.float64)
-        tile[top:top + r, left:left + r] = render_svg_rgba(c['tile_svg'], r)
+        def place(src):
+            """Paste an r x r raster centred on the canvas, cropping whatever
+            falls outside. Lets tile_frac exceed 1.0 for a full-bleed tile."""
+            shape = (sh, sw) + src.shape[2:]
+            out = np.zeros(shape, np.float64)
+            sy0, sx0 = max(0, -top), max(0, -left)
+            dy0, dx0 = max(0, top), max(0, left)
+            hgt = min(r - sy0, sh - dy0)
+            wid = min(r - sx0, sw - dx0)
+            if hgt > 0 and wid > 0:
+                out[dy0:dy0 + hgt, dx0:dx0 + wid] = src[sy0:sy0 + hgt, sx0:sx0 + wid]
+            return out
 
-        mask = np.zeros((sh, sw), np.float64)
-        mask[top:top + r, left:left + r] = render_svg_alpha(svg_path, r)
+        tile = place(render_svg_rgba(c['tile_svg'], r))
+        mask = place(render_svg_alpha(svg_path, r)[..., None])[..., 0]
     else:
         mask = fit_mask(render_svg_alpha(svg_path, max(sw, sh)),
                         (sw, sh), c['mark_frac'], c['y_shift'])
+        if c['style'] == 'bleed':
+            tile = np.concatenate([brand_gradient(sw, sh),
+                                   np.ones((sh, sw, 1), np.float64)], axis=2)
 
     bloom = multiscale_bloom(mask, c['bloom_sigmas'], c['bloom_weights'], min(sw, sh))
     ramp = np.repeat((np.linspace(1.0, 0.0, sh) ** 1.6)[:, None], sw, axis=1)
@@ -237,7 +279,7 @@ def render(layers, peak_nits=None, bloom_nits=None, bg_top=None, bg_bottom=None,
     # --- ground ---
     scene = (bot + (top - bot) * ramp)[..., None] * k.tint_at_nits(c['bg_hex'], 1.0)
 
-    if style == 'brand-tile':
+    if style in ('brand-tile', 'bleed'):
         # The tile at its ordinary brand level, so the logo still reads as the
         # logo -- then the arrow's light laid ON TOP of it. Order matters: put
         # the halo behind the tile and the tile simply hides it, which is the
@@ -248,11 +290,17 @@ def render(layers, peak_nits=None, bloom_nits=None, bg_top=None, bg_bottom=None,
         # as `tl` nits and let every other colour fall where the designer put it.
         # (Normalising by the tile's own brightest pixel instead would stretch
         # #6366f2 up toward white and turn the deep indigo into lavender.)
-        tile_img = k.srgb_to_linear(trgb) * tl
+        # the procedural gradient is already linear; the rasterised tile is sRGB
+        lin = trgb if style == 'bleed' else k.srgb_to_linear(trgb)
+        tile_img = lin * tl
         scene = scene * (1.0 - ta[..., None]) + tile_img * ta[..., None]
 
-        # light spilling from the arrow, across tile and background alike
-        scene = scene + (bloom * bl)[..., None] * bloom_tint
+        # Light spilling from the arrow. Clipped to the tile: let it run past
+        # the edge and it lights the dark background right at the boundary,
+        # which reads as a bright outline drawn around the whole logo.
+        spill = (bloom * ta if (c['clip_bloom_to_tile'] and style == 'brand-tile')
+                 else bloom)
+        scene = scene + (spill * bl)[..., None] * bloom_tint
 
         # the arrow itself, driven well past everything around it
         scene = (scene * (1.0 - mask[..., None])

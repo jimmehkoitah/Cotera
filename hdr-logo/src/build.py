@@ -115,14 +115,16 @@ def main():
                     help='a named size (%s), NNN, or WxH' % ', '.join(SIZES))
     ap.add_argument('--supersample', type=int, default=3)
     ap.add_argument('--preset', choices=sorted(PRESETS), default='default')
-    ap.add_argument('--style', choices=['brand-tile', 'indigo-mark', 'white-mark'],
-                    default='brand-tile',
-                    help='brand-tile: the logo as drawn, arrow driven above it (default)')
+    ap.add_argument('--style', choices=['bleed', 'brand-tile', 'indigo-mark', 'white-mark'],
+                    default='bleed',
+                    help='bleed: brand gradient edge to edge, no frame (default). '
+                         'brand-tile: the rounded logo tile on a dark ground.')
     ap.add_argument('--tile-nits', type=float,
                     help='what #ffffff inside the tile artwork means, in nits')
     ap.add_argument('--peak', type=float, help='mark luminance in nits (overrides preset)')
     ap.add_argument('--bloom', type=float, help='halo luminance in nits (overrides preset)')
-    ap.add_argument('--mark-frac', type=float, default=0.46)
+    ap.add_argument('--mark-frac', type=float, default=None,
+                    help='arrow size as a fraction of the short axis')
     ap.add_argument('--no-validate', action='store_true')
     a = ap.parse_args()
 
@@ -137,7 +139,10 @@ def main():
         cfg['width'] = cfg['height'] = int(a.size)
     cfg['canvas'] = cfg['width']
     cfg['supersample'] = a.supersample
-    cfg['mark_frac'] = a.mark_frac
+    # the bleed layout has no tile edge to sit inside, so the arrow can be larger
+    cfg['mark_frac'] = a.mark_frac if a.mark_frac else (0.55 if a.style == 'bleed' else 0.46)
+    if a.style == 'brand-tile':
+        cfg['tile_frac'] = 0.86
     cfg['style'] = a.style
     if a.tile_nits:
         cfg['tile_nits'] = a.tile_nits
@@ -146,7 +151,8 @@ def main():
     if a.bloom:
         cfg['bloom_peak_nits'] = a.bloom
 
-    name = a.name or f'cotera-{"logo" if a.style == "brand-tile" else "arrow"}-{a.size}'
+    suffix = {'bleed': 'bleed', 'brand-tile': 'tile'}.get(a.style, a.style)
+    name = a.name or f'cotera-logo-{a.size}-{suffix}'
     print(f'Cotera HDR logo build — {cfg["width"]}x{cfg["height"]}, preset "{a.preset}", '
           f'mark at {cfg["peak_nits"]:.0f} nits '
           f'({cfg["peak_nits"] / k.SDR_WHITE_NITS:.2f}x SDR white)')

@@ -47,22 +47,27 @@ python3 src/build.py --size avatar      # 400x400, company page / profile
 
 ### Styles
 
-`--style brand-tile` **(default)** — the logo exactly as drawn. The tile renders
-at its true brand values (`#6366f2` lands on `#6366f2`, not a stretched
-approximation of it), and only the white arrow and the light spilling off it go
-above SDR white. This is the one that still reads as Cotera.
+`--style bleed` **(default)** — the brand gradient edge to edge, arrow centred.
+No frame, no border, nothing around the artwork. The gradient is reproduced
+from the logo's own stops and axis and interpolated in **linear light**;
+interpolating in sRGB instead darkens the midpoints, the classic muddy-gradient
+artefact. Verified against the source: the corners land on `#6366f2` and
+`#322f82` exactly.
 
-`--style indigo-mark` — the arrow alone, in brand indigo with a hotter core, on
-a dark ground.
+`--style brand-tile` — the rounded logo tile on a dark ground.
 
-`--style white-mark` — the arrow alone, white, with an indigo halo.
+`--style indigo-mark` / `--style white-mark` — the arrow alone.
 
-Two details that matter in `brand-tile`: the tile is rendered at its *true*
-sRGB values rather than normalised against its own brightest pixel (normalising
-stretches `#6366f2` toward white and turns the deep indigo into lavender), and
-the halo is composited **on top of** the tile rather than behind it — put it
-behind and the tile simply hides it, which is the opposite of light spilling out
-of the mark.
+Three details that matter for keeping the brand intact:
+
+1. The tile renders at its **true sRGB values**, not normalised against its own
+   brightest pixel. Normalising stretches `#6366f2` toward white and turns the
+   deep indigo into lavender.
+2. The halo composites **on top of** the tile, not behind it. Behind it, the
+   tile simply hides the glow — the opposite of light spilling out of the mark.
+3. In `brand-tile` the halo is **clipped to the tile**. Let it run past the edge
+   and it lights the dark background right at the boundary, drawing a bright
+   outline around the whole logo — a visible rim that reads as a barrier.
 
 Each run writes, for that size:
 
