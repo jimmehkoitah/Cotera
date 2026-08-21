@@ -51,17 +51,54 @@ and never present one as evidence yourself.
 
 ## Platform notes
 
-Verify current behaviour rather than trusting any table, including this one —
-these pipelines change without announcement, and several platforms have moved to
-clamp HDR in feeds after users complained about brightness abuse.
+Verify current behaviour rather than trusting any table, including this one.
+These pipelines change without announcement.
 
-- **Feed images vs avatars** — avatars are aggressively resized to small squares
-  and are the least likely surface to preserve anything. Feed images are the
-  better bet on any platform.
-- **Native app vs web** — often different rendering paths. Check both.
-- **Instagram/Meta, Apple, Chrome/Android** have all shipped HDR-limiting
-  controls or tone-mapping at some point. Expect clamping to increase over time,
-  and treat any working recipe as perishable.
+**Sourcing discipline matters more than usual here.** The public knowledge on
+this topic is a handful of hobby repos that mostly cite one another. Counting
+derivative repos as independent replications is a common-source fallacy, and it
+is how "one blog post" becomes "confirmed by five tools". Before repeating any
+claim about a platform's pipeline, check whether the sources actually trace to
+separate observations — and prefer a test you ran yourself over any of them.
+
+The decisive test nobody publishes is trivial: upload, download the served
+rendition, and diff it against the source. Do that rather than citing.
+
+### Established as of August 2026
+
+- **CSS `dynamic-range-limit`** (CSS Color HDR Level 1): `standard` |
+  `constrained` | `no-limit`, **initial value `no-limit`**, inherited. Chrome/Edge
+  136+; Safari 26.0 partial (`standard` and `no-limit` only). The CSSWG
+  *rejected* making `standard` the default (issue #11711, closed Wontfix July
+  2025), so the web still defaults to unclamped HDR and a page must opt out.
+- **iOS 26** added `UITraitCollection.hdrHeadroomUsageLimit`, which *advises*
+  apps to restrict headroom rather than hard-clamping. Per-view limiting has
+  existed since iOS 17 (`UIImage.DynamicRange`). The user-facing control is
+  Settings → Photos → "View Full HDR", and apps cannot read its state.
+- **Android 15** added `Window.setDesiredHdrHeadroom()`; Google's guidance is
+  ~2× for mixed SDR/HDR UI. **Android 16 QPR** added a user-facing "Enhanced HDR
+  brightness" toggle, on by default — the most consequential consumer-side brake.
+- **Accepted upload formats decide the vector.** AVIF, HEIC and WebP are absent
+  from LinkedIn's accepted-format lists, which rules out CICP-tagged AVIF as an
+  upload there regardless of how good the encoding is. WebP cannot carry HDR at
+  all (8-bit, no signalling, no gain map). Build AVIF for your own surfaces and
+  for confirming a device can show the effect — not for upload.
+- **The tooling trend runs toward preservation, not stripping.** WordPress 7.1
+  (2026) detects gain maps on upload and carries them through every generated
+  sub-size. Do not assume platforms passively destroy HDR.
+
+### Claims to stop repeating
+
+- **"Instagram clamped HDR in 2025 after abuse."** No announcement, engineering
+  post or changelog supports this. Unsupported.
+- **"AirDrop converts HDR to SDR."** AirDrop does a HEIC→JPEG *format*
+  transcode, not tone mapping, and would not strip an ICC profile from a file
+  that is already a JPEG. The sound general rule is the real one: any
+  intermediate re-save through an encoder that does not carry `icc_profile`
+  through kills it. Pillow drops it by default.
+- **Named brands as proof.** Effectiveness claims for this technique carry *no*
+  published numbers — no impressions, CTR, or engagement lift, anywhere. If
+  someone quotes a lift figure, assume it is invented.
 
 ## Accessibility and restraint
 

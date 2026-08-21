@@ -48,6 +48,14 @@ Reach for the others deliberately:
 If someone asks for HDR JPEG with an ICC profile specifically, build it, but show
 them the fallback measurement before they publish it.
 
+**On the ICC-survives-LinkedIn claim.** It is widely repeated as confirmed by
+several independent tools. It is not: every published source traces back to a
+single 2026 write-up, and no byte-level diff of an upload against the served
+rendition has ever been published. The "verify with exiftool" step those tools
+recommend inspects their own pre-upload output, which never had a gain map — it
+tests nothing about the platform. Treat the ICC route as a plausible untested
+hypothesis, and run the download-and-diff yourself rather than citing anyone.
+
 ## Workflow
 
 ```bash
@@ -155,6 +163,7 @@ Apple authorship on a Linux box did not come from Apple.
 - `references/containers.md` — exact byte layouts: PNG `cICP`/`mDCV`/`cLLI`, MPF index, ICC structure, CICP code points
 - `references/measurements.md` — the survival and fallback numbers, and how to re-measure them
 - `references/platforms.md` — what each platform does, and how to test an upload end to end
+- `../../../hdr-logo/RESEARCH-BRIEF.md` (this repo only) — a full verified research brief with byte layouts, code points, refuted claims, and the LinkedIn sourcing analysis
 
 ## Requirements
 
