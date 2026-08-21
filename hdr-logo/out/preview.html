@@ -1,0 +1,72 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cotera HDR logo — device test</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin:0; padding:24px; background:#08080c; color:#e8e8f2;
+         font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  h1 { font-size:19px; margin:0 0 4px; }
+  p.sub { color:#8b8ba6; margin:0 0 24px; }
+  #caps { background:#111119; border:1px solid #23232f; border-radius:10px;
+          padding:14px 16px; margin-bottom:28px; font-size:14px; }
+  #caps b { color:#a9a9c8; font-weight:600; }
+  .row { display:flex; flex-wrap:wrap; gap:20px; }
+  figure { margin:0; width:min(340px, 100%); }
+  figcaption { font-size:13px; color:#8b8ba6; margin-top:8px; }
+  figcaption b { color:#e8e8f2; display:block; font-size:14px; }
+  .pair { display:flex; align-items:stretch; border-radius:12px; overflow:hidden; }
+  .pair img { flex:1 1 auto; min-width:0; width:auto; display:block; }
+  .swatch { width:56px; flex:0 0 56px; background:#fff; }
+  .note { margin-top:32px; padding:14px 16px; background:#111119;
+          border:1px solid #23232f; border-radius:10px; color:#8b8ba6; font-size:14px; }
+</style>
+
+<h1>Cotera HDR logo — device test</h1>
+<p class="sub">Open this on the device you want to check. The white strip beside each image is
+a plain <code>#ffffff</code> pixel — SDR white. If HDR is working, the mark reads brighter than that strip.</p>
+
+<div id="caps">checking display capabilities…</div>
+
+<div class="row">
+  <figure>
+    <div class="pair"><img src="cotera-arrow-ultrahdr.jpg" alt="Cotera arrow, Ultra HDR gain map JPEG"><div class="swatch"></div></div>
+    <figcaption><b>Ultra HDR JPEG (gain map)</b>Safest for social. Falls back to a correct SDR image anywhere.</figcaption>
+  </figure>
+  <figure>
+    <div class="pair"><img src="cotera-arrow-hdr-pq.avif" alt="Cotera arrow, BT.2020 PQ AVIF"><div class="swatch"></div></div>
+    <figcaption><b>AVIF — BT.2020 / PQ, 10-bit</b>Cleanest HDR. Looks washed out if a viewer ignores the tagging.</figcaption>
+  </figure>
+  <figure>
+    <div class="pair"><img src="cotera-arrow-hdr-pq.png" alt="Cotera arrow, BT.2020 PQ PNG with cICP"><div class="swatch"></div></div>
+    <figcaption><b>PNG — BT.2020 / PQ, 16-bit, cICP</b>For places that only accept PNG.</figcaption>
+  </figure>
+  <figure>
+    <div class="pair"><img src="cotera-arrow-sdr.png" alt="Cotera arrow, SDR reference"><div class="swatch"></div></div>
+    <figcaption><b>SDR reference</b>No HDR tagging at all. This is the control — it should never out-glow the strip.</figcaption>
+  </figure>
+</div>
+
+<div class="note">
+  If every image looks identical to the SDR control, this display has no HDR headroom,
+  the browser is ignoring the tagging, or the OS is in a mode that clamps HDR.
+  That is the expected outcome on most desktop monitors.
+</div>
+
+<script>
+  const q = s => { try { return matchMedia(s).matches } catch (e) { return 'n/a' } };
+  const bits = [
+    ['dynamic-range: high', q('(dynamic-range: high)')],
+    ['video-dynamic-range: high', q('(video-dynamic-range: high)')],
+    ['color-gamut: p3', q('(color-gamut: p3)')],
+    ['color-gamut: rec2020', q('(color-gamut: rec2020)')],
+    ['devicePixelRatio', window.devicePixelRatio],
+    ['screen colour depth', screen.colorDepth + '-bit'],
+  ];
+  // Chromium exposes measured headroom on some builds
+  if (window.screen && 'highDynamicRangeHeadroom' in window.screen) {
+    bits.push(['HDR headroom', screen.highDynamicRangeHeadroom]);
+  }
+  document.getElementById('caps').innerHTML =
+    bits.map(([k, v]) => `<b>${k}:</b> ${v}`).join('<br>');
+</script>
