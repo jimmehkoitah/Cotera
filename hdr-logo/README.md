@@ -98,10 +98,10 @@ whether it transcodes — not which format is most robust.
 
 This is the strongest argument for the gain-map JPEG. When its gain map is
 stripped, what remains is the authored SDR base: measured mean difference from
-the intended SDR rendition, **0.5/255**. When a PQ file loses its `cICP` tag,
-the PQ-encoded values get read as sRGB and the image breaks — **25.8/255** off,
-with the background washing from `#242263` to `#3d395e`. The gain-map file
-degrades; the PQ file fails.
+the intended SDR rendition, **0.58/255** — i.e. indistinguishable. When a PQ
+file loses its `cICP` tag, the PQ-encoded values get read as sRGB and the image
+breaks — **30.2/255** off, with the background washing from `#242263` to
+`#3d395e`. The gain-map file degrades; the PQ file fails.
 
 ## Checking it
 
