@@ -33,16 +33,16 @@ SIZES = {
     'square':    (1200, 1200),   # standard feed image
     'portrait':  (1080, 1350),   # tallest allowed in-feed; most screen real estate
     'landscape': (1200, 627),    # link-preview shape
-    'logo':      (400, 400),     # company page / profile avatar
+    'avatar':    (400, 400),     # company page / profile avatar
 }
 
 
 PRESETS = {
     # peak nits, bloom nits -- expressed as multiples of SDR white in the docs
-    'subtle':      dict(peak_nits=450.0,  bloom_peak_nits=200.0),   # 2.2x
-    'default':     dict(peak_nits=800.0,  bloom_peak_nits=300.0),   # 3.9x
-    'strong':      dict(peak_nits=1200.0, bloom_peak_nits=420.0),   # 5.9x
-    'obnoxious':   dict(peak_nits=2000.0, bloom_peak_nits=700.0),   # 9.9x -- don't
+    'subtle':      dict(peak_nits=450.0,  bloom_peak_nits=210.0),   # 2.2x SDR white
+    'default':     dict(peak_nits=900.0,  bloom_peak_nits=330.0),   # 4.4x
+    'strong':      dict(peak_nits=1400.0, bloom_peak_nits=480.0),   # 6.9x
+    'obnoxious':   dict(peak_nits=2400.0, bloom_peak_nits=800.0),   # 11.8x -- named
 }
 
 
@@ -115,6 +115,11 @@ def main():
                     help='a named size (%s), NNN, or WxH' % ', '.join(SIZES))
     ap.add_argument('--supersample', type=int, default=3)
     ap.add_argument('--preset', choices=sorted(PRESETS), default='default')
+    ap.add_argument('--style', choices=['brand-tile', 'indigo-mark', 'white-mark'],
+                    default='brand-tile',
+                    help='brand-tile: the logo as drawn, arrow driven above it (default)')
+    ap.add_argument('--tile-nits', type=float,
+                    help='what #ffffff inside the tile artwork means, in nits')
     ap.add_argument('--peak', type=float, help='mark luminance in nits (overrides preset)')
     ap.add_argument('--bloom', type=float, help='halo luminance in nits (overrides preset)')
     ap.add_argument('--mark-frac', type=float, default=0.46)
@@ -133,12 +138,15 @@ def main():
     cfg['canvas'] = cfg['width']
     cfg['supersample'] = a.supersample
     cfg['mark_frac'] = a.mark_frac
+    cfg['style'] = a.style
+    if a.tile_nits:
+        cfg['tile_nits'] = a.tile_nits
     if a.peak:
         cfg['peak_nits'] = a.peak
     if a.bloom:
         cfg['bloom_peak_nits'] = a.bloom
 
-    name = a.name or f'cotera-arrow-{a.size}'
+    name = a.name or f'cotera-{"logo" if a.style == "brand-tile" else "arrow"}-{a.size}'
     print(f'Cotera HDR logo build — {cfg["width"]}x{cfg["height"]}, preset "{a.preset}", '
           f'mark at {cfg["peak_nits"]:.0f} nits '
           f'({cfg["peak_nits"] / k.SDR_WHITE_NITS:.2f}x SDR white)')

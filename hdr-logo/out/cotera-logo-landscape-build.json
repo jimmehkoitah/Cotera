@@ -1,0 +1,76 @@
+{
+  "source_svg": "/home/user/Cotera/hdr-logo/assets/cotera-arrow.svg",
+  "name": "cotera-logo-landscape",
+  "config": {
+    "canvas": 1200,
+    "supersample": 3,
+    "mark_frac": 0.46,
+    "y_shift": 0.0,
+    "peak_nits": 900.0,
+    "bloom_peak_nits": 330.0,
+    "bg_top_nits": 5.0,
+    "bg_bottom_nits": 1.1,
+    "sdr_peak_nits": 203.0,
+    "sdr_bloom_nits": 90.0,
+    "mark_hex": "#ffffff",
+    "bloom_hex": "#6366f2",
+    "bg_hex": "#322f82",
+    "style": "brand-tile",
+    "tile_nits": 203.0,
+    "tile_frac": 0.8,
+    "tile_svg": "assets/cotera-tile.svg",
+    "mark_hex_indigo": "#6366f2",
+    "core_hex": "#c9c8ff",
+    "core_frac": 0.45,
+    "bloom_sigmas": [
+      0.008,
+      0.022,
+      0.055,
+      0.12
+    ],
+    "bloom_weights": [
+      0.5,
+      0.32,
+      0.18,
+      0.12
+    ],
+    "width": 1200,
+    "height": 627
+  },
+  "scene": {
+    "peak_nits": 900.0,
+    "mean_nits": 66.26321827639262,
+    "sdr_white_multiple": 4.433497536945813,
+    "frac_above_sdr_white": 0.061115098351940456,
+    "frac_above_2x": 0.060586124401913875,
+    "apl_vs_sdr_white": 0.32641979446498826
+  },
+  "gain_map": {
+    "version": "1.0",
+    "gain_map_min": 0.0,
+    "gain_map_max": 2.131153020484022,
+    "gamma": 1.0,
+    "offset_sdr": 0.015625,
+    "offset_hdr": 0.015625,
+    "hdr_capacity_min": 0.0,
+    "hdr_capacity_max": 2.131153020484022,
+    "base_rendition_is_hdr": false
+  },
+  "ultrahdr_container": {
+    "path": "/home/user/Cotera/hdr-logo/out/cotera-logo-landscape-ultrahdr.jpg",
+    "primary_bytes": 42308,
+    "gainmap_bytes": 28950,
+    "total": 71258,
+    "mpf_endian_offset": 792,
+    "secondary_offset": 41516
+  },
+  "sdr_white_nits": 203.0,
+  "files": {
+    "sdr_png": "/home/user/Cotera/hdr-logo/out/cotera-logo-landscape-sdr.png",
+    "sdr_jpg": "/home/user/Cotera/hdr-logo/out/cotera-logo-landscape-sdr.jpg",
+    "ultrahdr_jpg": "/home/user/Cotera/hdr-logo/out/cotera-logo-landscape-ultrahdr.jpg",
+    "avif": "/home/user/Cotera/hdr-logo/out/cotera-logo-landscape-hdr-pq.avif",
+    "png": "/home/user/Cotera/hdr-logo/out/cotera-logo-landscape-hdr-pq.png"
+  },
+  "built_seconds": 13.6
+}

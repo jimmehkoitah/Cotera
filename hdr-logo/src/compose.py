@@ -13,6 +13,7 @@ then resampled down, which is what keeps the edges clean: averaging *gamma
 encoded* pixels around a 4x brightness step produces the classic dark fringe.
 """
 
+import os
 import subprocess
 import numpy as np
 from scipy.ndimage import gaussian_filter, zoom
@@ -33,6 +34,41 @@ def render_svg_alpha(svg_path, px, pad_frac=0.0):
         check=True, capture_output=True).stdout
     im = Image.open(io.BytesIO(out)).convert('RGBA')
     return np.asarray(im, np.float64)[..., 3] / 255.0
+
+
+def render_svg_rgba(svg_path, px):
+    """Rasterise an SVG to (H,W,4) float in [0,1], straight (un-premultiplied)
+    sRGB plus alpha. Needed for the brand tile, where the artwork carries its
+    own gradient rather than being a flat silhouette."""
+    from PIL import Image
+    import io
+    out = subprocess.run(
+        ['rsvg-convert', '-w', str(px), '-h', str(px), '-b', 'none', svg_path],
+        check=True, capture_output=True).stdout
+    arr = np.asarray(Image.open(io.BytesIO(out)).convert('RGBA'), np.float64) / 255.0
+    rgb, a = arr[..., :3], arr[..., 3:4]
+    # rsvg gives premultiplied-looking output over transparency; recover straight
+    # colour so scaling luminance later does not darken the edges.
+    rgb = rgb / np.clip(a, 1e-6, None)
+    return np.concatenate([np.clip(rgb, 0, 1), a], axis=2)
+
+
+def fit_rgba(rgba, canvas, mark_frac, y_shift=0.0):
+    """Same placement as fit_mask, but carrying colour through."""
+    cw, ch = canvas
+    a = rgba[..., 3]
+    ys, xs = np.nonzero(a > 1e-3)
+    sub = rgba[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+    h, w = sub.shape[:2]
+    scale = (mark_frac * min(cw, ch)) / max(h, w)
+    sub = np.stack([np.clip(zoom(sub[..., c], scale, order=3, mode='constant', cval=0.0), 0, 1)
+                    for c in range(4)], axis=2)
+    h, w = sub.shape[:2]
+    out = np.zeros((ch, cw, 4), np.float64)
+    top = max(0, min(ch - h, int(round((ch - h) / 2 + y_shift * ch))))
+    left = max(0, min(cw - w, int(round((cw - w) / 2))))
+    out[top:top + h, left:left + w] = sub
+    return out
 
 
 def fit_mask(mask, canvas, mark_frac=0.52, y_shift=0.0):
@@ -91,20 +127,29 @@ DEFAULTS = dict(
     y_shift=0.0,
 
     # --- luminance, in nits. This is the whole trick, stated plainly. ---
-    peak_nits=800.0,          # the white mark: ~3.9x SDR white
-    bloom_peak_nits=300.0,    # the halo at its hottest: ~1.5x SDR white
+    peak_nits=900.0,          # the white arrow: ~4.4x SDR white
+    bloom_peak_nits=330.0,    # light spilling off the arrow: ~1.6x SDR white
     bg_top_nits=5.0,          # background gradient, top
     bg_bottom_nits=1.1,       # background gradient, bottom
 
     # --- the SDR rendition of the same artwork ---
     sdr_peak_nits=203.0,      # mark sits exactly at SDR white
-    sdr_bloom_nits=118.0,     # halo stays indigo instead of clipping to white
+    sdr_bloom_nits=90.0,     # halo stays indigo instead of clipping to white
 
     mark_hex='#ffffff',
     bloom_hex='#6366f2',      # Cotera indigo, light stop of the brand gradient
     bg_hex='#322f82',         # Cotera indigo, dark stop
-    bloom_sigmas=(0.010, 0.030, 0.075, 0.170),
-    bloom_weights=(0.44, 0.30, 0.17, 0.16),
+    style='brand-tile',      # indigo-mark | white-mark | brand-tile
+    tile_nits=203.0,          # what #ffffff *inside the tile artwork* means, in
+                              # nits. At SDR white the tile is exactly the brand
+                              # colour; raise it to lift the whole tile.
+    tile_frac=0.80,           # how much of the canvas the tile fills
+    tile_svg='assets/cotera-tile.svg',
+    mark_hex_indigo='#6366f2',  # Cotera indigo, bright stop
+    core_hex='#c9c8ff',       # white-hot core inside the indigo mark
+    core_frac=0.45,           # how much of the mark reads as hot core
+    bloom_sigmas=(0.008, 0.022, 0.055, 0.120),
+    bloom_weights=(0.50, 0.32, 0.18, 0.12),
 )
 
 
@@ -122,11 +167,33 @@ def build_layers(svg_path, cfg=None):
     cw, ch = c.get('width', c['canvas']), c.get('height', c['canvas'])
     s = c['supersample']
     sw, sh = cw * s, ch * s
+    tile = None
 
-    # Rasterise the SVG square at the resolution the mark will actually need,
-    # then place it -- rsvg only renders into a square viewBox.
-    src = render_svg_alpha(svg_path, max(sw, sh))
-    mask = fit_mask(src, (sw, sh), c['mark_frac'], c['y_shift'])
+    if c['style'] == 'brand-tile':
+        # Resolve the tile artwork relative to this package, so the default
+        # works regardless of the caller's working directory.
+        if not os.path.isabs(c['tile_svg']):
+            root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            cand = os.path.join(root, c['tile_svg'])
+            if os.path.exists(cand):
+                c['tile_svg'] = cand
+
+        # The tile and the arrow come from the same 200x200 viewBox, so
+        # rasterising both at one size and pasting at one offset keeps them in
+        # exact register -- no independent bbox fitting, no drift.
+        r = int(round(c['tile_frac'] * min(sw, sh)))
+        top, left = (sh - r) // 2 + int(round(c['y_shift'] * sh)), (sw - r) // 2
+        top = max(0, min(sh - r, top))
+
+        tile = np.zeros((sh, sw, 4), np.float64)
+        tile[top:top + r, left:left + r] = render_svg_rgba(c['tile_svg'], r)
+
+        mask = np.zeros((sh, sw), np.float64)
+        mask[top:top + r, left:left + r] = render_svg_alpha(svg_path, r)
+    else:
+        mask = fit_mask(render_svg_alpha(svg_path, max(sw, sh)),
+                        (sw, sh), c['mark_frac'], c['y_shift'])
+
     bloom = multiscale_bloom(mask, c['bloom_sigmas'], c['bloom_weights'], min(sw, sh))
     ramp = np.repeat((np.linspace(1.0, 0.0, sh) ** 1.6)[:, None], sw, axis=1)
 
@@ -134,25 +201,80 @@ def build_layers(svg_path, cfg=None):
         mask = mask.reshape(ch, s, cw, s).mean(axis=(1, 3))
         bloom = bloom.reshape(ch, s, cw, s).mean(axis=(1, 3))
         ramp = ramp.reshape(ch, s, cw, s).mean(axis=(1, 3))
+        if tile is not None:
+            tile = tile.reshape(ch, s, cw, s, 4).mean(axis=(1, 3))
 
-    return dict(mask=np.clip(mask, 0, 1), bloom=np.clip(bloom, 0, 1),
-                ramp=ramp, cfg=c)
+    layers = dict(mask=np.clip(mask, 0, 1), bloom=np.clip(bloom, 0, 1),
+                  ramp=ramp, cfg=c)
+    if tile is not None:
+        layers['tile'] = tile
+
+    if c['style'] == 'indigo-mark':
+        # A hotter, lighter core inside the indigo mark, the way a real emitter
+        # reads: saturated at the edges, near-white where it is brightest.
+        core = gaussian_filter(layers['mask'], max(min(cw, ch) * 0.012, 0.6),
+                               mode='constant', cval=0.0)
+        core = np.clip((core - (1.0 - c['core_frac'])) / max(c['core_frac'], 1e-6), 0, 1)
+        layers['core'] = core * layers['mask']
+
+    return layers
 
 
-def render(layers, peak_nits=None, bloom_nits=None, bg_top=None, bg_bottom=None):
+def render(layers, peak_nits=None, bloom_nits=None, bg_top=None, bg_bottom=None,
+           tile_nits=None):
     """Composite the layers at a given set of luminances -> linear BT.709 nits."""
     c = layers['cfg']
     peak = c['peak_nits'] if peak_nits is None else peak_nits
     bl = c['bloom_peak_nits'] if bloom_nits is None else bloom_nits
     top = c['bg_top_nits'] if bg_top is None else bg_top
     bot = c['bg_bottom_nits'] if bg_bottom is None else bg_bottom
+    tl = c['tile_nits'] if tile_nits is None else tile_nits
+    style = c['style']
 
     mask, bloom, ramp = layers['mask'], layers['bloom'], layers['ramp']
+    bloom_tint = k.tint_at_nits(c['bloom_hex'], 1.0)
 
-    bg = (bot + (top - bot) * ramp)[..., None] * k.tint_at_nits(c['bg_hex'], 1.0)
-    scene = bg + (bloom * bl)[..., None] * k.tint_at_nits(c['bloom_hex'], 1.0)
-    mark = (mask * peak)[..., None] * k.tint_at_nits(c['mark_hex'], 1.0)
-    scene = scene * (1.0 - mask[..., None]) + mark
+    # --- ground ---
+    scene = (bot + (top - bot) * ramp)[..., None] * k.tint_at_nits(c['bg_hex'], 1.0)
+
+    if style == 'brand-tile':
+        # The tile at its ordinary brand level, so the logo still reads as the
+        # logo -- then the arrow's light laid ON TOP of it. Order matters: put
+        # the halo behind the tile and the tile simply hides it, which is the
+        # opposite of light spilling out of the mark.
+        tile = layers['tile']
+        trgb, ta = tile[..., :3], tile[..., 3]
+        # Render the tile at its TRUE brand values: treat #ffffff in the artwork
+        # as `tl` nits and let every other colour fall where the designer put it.
+        # (Normalising by the tile's own brightest pixel instead would stretch
+        # #6366f2 up toward white and turn the deep indigo into lavender.)
+        tile_img = k.srgb_to_linear(trgb) * tl
+        scene = scene * (1.0 - ta[..., None]) + tile_img * ta[..., None]
+
+        # light spilling from the arrow, across tile and background alike
+        scene = scene + (bloom * bl)[..., None] * bloom_tint
+
+        # the arrow itself, driven well past everything around it
+        scene = (scene * (1.0 - mask[..., None])
+                 + (mask * peak)[..., None] * k.tint_at_nits(c['mark_hex'], 1.0))
+        return np.clip(scene, 0.0, k.PQ_MAX_NITS)
+
+    # --- halo, for the mark-only styles ---
+    scene = scene + (bloom * bl)[..., None] * bloom_tint
+
+    if style == 'indigo-mark':
+        # Brand indigo at the full peak, with a hotter, lighter core.
+        body = (mask * peak)[..., None] * k.tint_at_nits(c['mark_hex_indigo'], 1.0)
+        core = layers.get('core')
+        if core is not None:
+            hot = (core * peak * 1.06)[..., None] * k.tint_at_nits(c['core_hex'], 1.0)
+            body = body * (1.0 - core[..., None]) + hot
+        scene = scene * (1.0 - mask[..., None]) + body
+
+    else:  # white-mark
+        body = (mask * peak)[..., None] * k.tint_at_nits(c['mark_hex'], 1.0)
+        scene = scene * (1.0 - mask[..., None]) + body
+
     return np.clip(scene, 0.0, k.PQ_MAX_NITS)
 
 
@@ -165,7 +287,8 @@ def render_sdr(layers):
     SDR white and the halo stays below it, so this file is a correct standalone
     image on any display that never heard of HDR."""
     c = layers['cfg']
-    return render(layers, peak_nits=c['sdr_peak_nits'], bloom_nits=c['sdr_bloom_nits'])
+    return render(layers, peak_nits=c['sdr_peak_nits'], bloom_nits=c['sdr_bloom_nits'],
+                  tile_nits=min(c['tile_nits'], c['sdr_peak_nits']))
 
 
 def build_scene(svg_path, cfg=None):

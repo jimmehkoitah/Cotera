@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The Cotera tile: brand gradient + rounded square, arrow removed.
+     Same 0 0 200 200 viewBox as cotera-arrow.svg, so the two rasterise in
+     perfect register at any size. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="g" x1="174.41" y1="170.89" x2="25.26" y2="28.8" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#322f82"/>
+      <stop offset=".19" stop-color="#403fa4"/>
+      <stop offset=".42" stop-color="#4f50c5"/>
+      <stop offset=".64" stop-color="#5a5cde"/>
+      <stop offset=".83" stop-color="#6063ec"/>
+      <stop offset="1" stop-color="#6366f2"/>
+    </linearGradient>
+  </defs>
+  <rect fill="url(#g)" width="200" height="200" rx="32" ry="32"/>
+</svg>
