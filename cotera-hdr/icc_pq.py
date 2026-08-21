@@ -156,10 +156,23 @@ def _cicp(primaries=9, transfer=16, matrix=0, full_range=1):
     return b"cicp" + b"\x00" * 4 + struct.pack(">BBBB", primaries, transfer, matrix, full_range)
 
 
-def pq_trc_samples(sdr_white_nits=BT2408_REFERENCE_WHITE_NITS, size=4096):
-    """PQ code value -> PCS-relative linear luminance, clipped at reference white."""
+def pq_trc_samples(sdr_white_nits=BT2408_REFERENCE_WHITE_NITS, size=4096, mode="reference"):
+    """PQ code value -> PCS-relative linear luminance.
+
+    mode="reference" anchors PCS 1.0 at the BT.2408 reference white (203 nits)
+    and clips above it.  An ICC-aware SDR viewer then reproduces the artwork
+    correctly and clips the arrow to white -- a graceful fallback.
+
+    mode="full" anchors PCS 1.0 at the PQ system peak of 10000 nits, which is how
+    the canonical Rec.2100 PQ profiles (e.g. ITUR_2100_PQ_FULL) are built.  This
+    matches the conventional curve shape, which may matter to colour-management
+    stacks that recognise PQ by profile identity rather than by the cicp tag --
+    but a viewer that applies this TRC without HDR handling renders the artwork
+    far too dark, because SDR white sits at 203/10000 of the PCS range.
+    """
     code = np.linspace(0.0, 1.0, size)
-    return np.clip(pq_eotf(code) / float(sdr_white_nits), 0.0, 1.0)
+    anchor = MAX_PQ_NITS if mode == "full" else float(sdr_white_nits)
+    return np.clip(pq_eotf(code) / anchor, 0.0, 1.0)
 
 
 def build_rec2100_pq_icc(
@@ -168,13 +181,14 @@ def build_rec2100_pq_icc(
     sdr_white_nits=BT2408_REFERENCE_WHITE_NITS,
     trc_size=4096,
     created=PROFILE_EPOCH,
+    trc_mode="reference",
 ):
     """Return a complete ICC v4.4 Rec.2100 PQ profile as bytes."""
     d65_xyz = xy_to_xyz(*D65_XY)
     adapt = bradford_adaptation(d65_xyz, D50_XYZ)
     colorants = adapt @ rgb_to_xyz_matrix(BT2020_PRIMARIES, D65_XY)
 
-    trc = _curv(pq_trc_samples(sdr_white_nits, trc_size))
+    trc = _curv(pq_trc_samples(sdr_white_nits, trc_size, trc_mode))
 
     tags = [
         (b"desc", _mluc(description)),

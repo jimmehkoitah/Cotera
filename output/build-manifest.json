@@ -3,26 +3,26 @@
   "quality": 98,
   "sdr_white_nits": 203.0,
   "mask_mode": "both",
-  "mask_coverage_pct": 17.975,
+  "mask_coverage_pct": 17.99,
   "round_trip": {
     "600nits": {
       "arrow_median_nits": 609.7,
       "arrow_p99_9_nits": 704.6,
-      "background_peak_nits": 210.2,
-      "background_pixels_above_sdr_white": 1,
+      "background_peak_nits": 167.6,
+      "background_pixels_above_sdr_white": 0,
       "background_pixels_above_tolerance": 0
     },
     "800nits": {
       "arrow_median_nits": 814.0,
       "arrow_p99_9_nits": 940.1,
-      "background_peak_nits": 210.2,
-      "background_pixels_above_sdr_white": 1,
+      "background_peak_nits": 174.1,
+      "background_pixels_above_sdr_white": 0,
       "background_pixels_above_tolerance": 0
     },
     "1200nits": {
       "arrow_median_nits": 1209.2,
       "arrow_p99_9_nits": 1396.2,
-      "background_peak_nits": 202.4,
+      "background_peak_nits": 167.6,
       "background_pixels_above_sdr_white": 0,
       "background_pixels_above_tolerance": 0
     }
@@ -30,32 +30,42 @@
   "files": [
     {
       "file": "cotera-linkedin-sdr-icon.jpg",
-      "bytes": 78574,
+      "bytes": 78507,
       "note": "SDR control, sRGB"
     },
     {
       "file": "cotera-linkedin-hdr-icon-600nits.jpg",
-      "bytes": 64111,
+      "bytes": 63833,
       "note": "HDR, arrow at 600 nits"
     },
     {
       "file": "cotera-linkedin-hdr-icon-800nits.jpg",
-      "bytes": 64520,
+      "bytes": 64271,
       "note": "HDR, arrow at 800 nits"
     },
     {
       "file": "cotera-linkedin-hdr-icon-1200nits.jpg",
-      "bytes": 65041,
+      "bytes": 64809,
       "note": "HDR, arrow at 1200 nits"
     },
     {
+      "file": "cotera-linkedin-hdr-icon-800nits-fullrange.jpg",
+      "bytes": 64207,
+      "note": "HDR, arrow at 800 nits, full-range PQ curve"
+    },
+    {
+      "file": "cotera-linkedin-hdr-icon-800nits-cicp.png",
+      "bytes": 42589,
+      "note": "HDR control, PNG cICP chunk (documented Safari path)"
+    },
+    {
       "file": "cotera-linkedin-sdr-arrow.jpg",
-      "bytes": 26282,
+      "bytes": 26734,
       "note": "SDR control, sRGB"
     },
     {
       "file": "cotera-linkedin-hdr-arrow-800nits.jpg",
-      "bytes": 33155,
+      "bytes": 33476,
       "note": "HDR, arrow at 800 nits"
     }
   ]

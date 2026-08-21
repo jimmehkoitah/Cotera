@@ -1,0 +1,92 @@
+{
+  "cotera-linkedin-sdr-icon.jpg": {
+    "label": "SDR control (sRGB)",
+    "background_rgb": [
+      99.0,
+      102.0,
+      243.0
+    ],
+    "arrow_rgb": [
+      255.0,
+      255.0,
+      255.0
+    ],
+    "background_darker_pct": 0.0,
+    "arrow_is_pure_white": true
+  },
+  "cotera-linkedin-hdr-icon-600nits.jpg": {
+    "label": "HDR 600 nits",
+    "background_rgb": [
+      76.0,
+      78.0,
+      188.0
+    ],
+    "arrow_rgb": [
+      237.0,
+      237.0,
+      237.0
+    ],
+    "background_darker_pct": 23.0,
+    "arrow_is_pure_white": false
+  },
+  "cotera-linkedin-hdr-icon-800nits.jpg": {
+    "label": "HDR 800 nits",
+    "background_rgb": [
+      76.0,
+      78.0,
+      188.0
+    ],
+    "arrow_rgb": [
+      247.0,
+      247.0,
+      247.0
+    ],
+    "background_darker_pct": 23.0,
+    "arrow_is_pure_white": false
+  },
+  "cotera-linkedin-hdr-icon-1200nits.jpg": {
+    "label": "HDR 1200 nits",
+    "background_rgb": [
+      76.0,
+      78.0,
+      188.0
+    ],
+    "arrow_rgb": [
+      255.0,
+      255.0,
+      255.0
+    ],
+    "background_darker_pct": 23.0,
+    "arrow_is_pure_white": true
+  },
+  "cotera-linkedin-hdr-icon-800nits-fullrange.jpg": {
+    "label": "HDR 800 full-range ICC",
+    "background_rgb": [
+      76.0,
+      78.0,
+      188.0
+    ],
+    "arrow_rgb": [
+      247.0,
+      247.0,
+      247.0
+    ],
+    "background_darker_pct": 23.0,
+    "arrow_is_pure_white": false
+  },
+  "cotera-linkedin-hdr-icon-800nits-cicp.png": {
+    "label": "HDR 800 PNG cICP",
+    "background_rgb": [
+      76.0,
+      78.0,
+      188.0
+    ],
+    "arrow_rgb": [
+      247.0,
+      247.0,
+      247.0
+    ],
+    "background_darker_pct": 23.0,
+    "arrow_is_pure_white": false
+  }
+}

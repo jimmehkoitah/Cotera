@@ -32,6 +32,7 @@ import json
 import math
 import re
 import shutil
+import struct
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -324,10 +325,9 @@ def srgb_oetf(v):
 BT709_TO_BT2020 = linear_rgb_conversion_matrix(BT709_PRIMARIES, BT2020_PRIMARIES)
 
 
-def encode_pq(rgb_srgb, mask, target_nits, sdr_white_nits=BT2408_REFERENCE_WHITE_NITS):
-    """sRGB 0..1 + arrow mask -> 8-bit BT.2020 ST.2084 PQ image."""
-    linear = srgb_eotf(rgb_srgb)
-    nits = linear * float(sdr_white_nits)
+def encode_pq(linear_rgb, mask, target_nits, sdr_white_nits=BT2408_REFERENCE_WHITE_NITS):
+    """Linear-light BT.709 RGB 0..1 + arrow mask -> 8-bit BT.2020 ST.2084 PQ."""
+    nits = np.clip(linear_rgb, 0.0, None) * float(sdr_white_nits)
 
     # Only the masked arrow is lifted; everything else keeps its SDR luminance.
     boost = 1.0 + mask * (float(target_nits) / float(sdr_white_nits) - 1.0)
@@ -353,28 +353,36 @@ def hex_to_rgb01(value):
 
 
 def composite_icon(spec, size, supersample, glow=True):
-    """Full-bleed gradient + brand glow + white arrow.  Returns (rgb, arrow_alpha)."""
+    """Full-bleed gradient + brand glow + white arrow, composited in LINEAR light.
+
+    Averaging gamma-encoded pixels across the arrow's 4x brightness step darkens
+    the average and leaves a dark fringe around the glyph -- measured at up to
+    34.7/255 on the antialiased edge before this was fixed.  Every blend below
+    therefore happens in linear light and is re-encoded once at the end.
+
+    Returns (linear BT.709 RGB, arrow coverage alpha).
+    """
     backdrop = render_rgba(backdrop_svg(spec), size, supersample)
     icon = render_rgba(icon_svg(spec, with_glow=False), size, supersample)
     arrow = render_rgba(arrow_only_svg(spec), size, supersample)
 
     a_icon = icon[..., 3:4]
-    rgb = backdrop[..., :3] * (1.0 - a_icon) + icon[..., :3] * a_icon
+    lin = srgb_eotf(backdrop[..., :3]) * (1.0 - a_icon) + srgb_eotf(icon[..., :3]) * a_icon
 
     arrow_alpha = arrow[..., 3]
     if glow:
         sigma = GLOW_STDDEV * size / spec["viewbox"][2]
         glow_a = (gaussian_blur(arrow_alpha, sigma) * GLOW_OPACITY)[..., None]
-        glow_rgb = np.array(GLOW_COLOR, dtype=np.float64) / 255.0
-        rgb = rgb * (1.0 - glow_a) + glow_rgb * glow_a
+        glow_lin = srgb_eotf(np.array(GLOW_COLOR, dtype=np.float64) / 255.0)
+        lin = lin * (1.0 - glow_a) + glow_lin * glow_a
 
     a = arrow_alpha[..., None]
-    rgb = rgb * (1.0 - a) + 1.0 * a  # white arrow on top
-    return np.clip(rgb, 0.0, 1.0), arrow_alpha
+    lin = lin * (1.0 - a) + 1.0 * a  # white arrow on top, in linear light
+    return np.clip(lin, 0.0, 1.0), arrow_alpha
 
 
 def composite_arrow(spec, viewbox, size, supersample, background):
-    """Isolated white arrow on a flat dark brand background."""
+    """Isolated white arrow on a flat dark background, composited in linear light."""
     x, y, w, h = viewbox
     side = max(w, h)
     square_vb = (x - (side - w) / 2.0, y - (side - h) / 2.0, side, side)
@@ -383,10 +391,10 @@ def composite_arrow(spec, viewbox, size, supersample, background):
 
     arrow = render_rgba(arrow_only_svg(spec, padded_vb), size, supersample)
     arrow_alpha = arrow[..., 3]
-    bg = hex_to_rgb01(background)
+    bg = srgb_eotf(hex_to_rgb01(background))
     a = arrow_alpha[..., None]
-    rgb = bg * (1.0 - a) + 1.0 * a
-    return np.clip(rgb, 0.0, 1.0), arrow_alpha
+    lin = bg * (1.0 - a) + 1.0 * a
+    return np.clip(lin, 0.0, 1.0), arrow_alpha
 
 
 def arrow_bbox_viewbox(spec, size=1024, margin=0.04):
@@ -421,6 +429,50 @@ def save_jpeg(path, array_u8, icc_profile, quality):
         icc_profile=icc_profile,
     )
     return path
+
+
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+# cICP overrides iCCP/sRGB/gAMA/cHRM, so drop those rather than leaving them to
+# argue with it.
+_PNG_DROP = {b"iCCP", b"sRGB", b"gAMA", b"cHRM"}
+
+
+def save_png_cicp(path, array_u8, primaries=9, transfer=16, matrix=0, full_range=1):
+    """Write a PNG carrying a cICP chunk declaring BT.2020 + ST.2084 PQ.
+
+    PNG's cICP chunk is the *documented* no-gain-map HDR still-image path in
+    Safari 26 (and Chrome reads it too), whereas "baseline JPEG + PQ ICC profile"
+    is undocumented on Apple's stack.  This file is therefore the control that
+    separates "this display/browser cannot do HDR at all" from "the JPEG's ICC
+    route specifically is what failed".
+    """
+    import io
+    import zlib
+
+    buf = io.BytesIO()
+    Image.fromarray(array_u8, mode="RGB").save(buf, format="PNG", optimize=True)
+    raw = buf.getvalue()
+    assert raw[:8] == PNG_SIGNATURE
+
+    def chunk(kind, payload):
+        return (struct.pack(">I", len(payload)) + kind + payload
+                + struct.pack(">I", zlib.crc32(kind + payload) & 0xFFFFFFFF))
+
+    out = bytearray(PNG_SIGNATURE)
+    i = 8
+    while i < len(raw):
+        (length,) = struct.unpack(">I", raw[i:i + 4])
+        kind = raw[i + 4:i + 8]
+        end = i + 12 + length
+        if kind not in _PNG_DROP:
+            out += raw[i:end]
+        if kind == b"IHDR":
+            # cICP must precede PLTE and IDAT.
+            out += chunk(b"cICP", struct.pack(">BBBB", primaries, transfer, matrix, full_range))
+        i = end
+
+    Path(path).write_bytes(bytes(out))
+    return Path(path)
 
 
 def srgb_icc():
@@ -468,6 +520,16 @@ def main():
     # -- 2. profiles ---------------------------------------------------------
     pq_profile = build_rec2100_pq_icc(sdr_white_nits=args.sdr_white)
     (out / "Rec2100-PQ.icc").write_bytes(pq_profile)
+    # Second profile with the conventional full-range (10000-nit) PQ curve and
+    # the canonical description.  Apple's ColorSync is not documented to read the
+    # ICC cicp tag, and PQ recognition elsewhere in the ecosystem is keyed to
+    # profile identity, so this variant exists to A/B that on Safari/iOS.
+    pq_profile_full = build_rec2100_pq_icc(
+        description="ITU-R BT.2100 PQ Full",
+        sdr_white_nits=args.sdr_white,
+        trc_mode="full",
+    )
+    (out / "Rec2100-PQ-fullrange.icc").write_bytes(pq_profile_full)
     srgb_profile = srgb_icc()
 
     manifest = []
@@ -479,7 +541,8 @@ def main():
 
     # -- 3. square icon ------------------------------------------------------
     print("\nsquare icon (800x800, full-bleed gradient):")
-    rgb, arrow_alpha = composite_icon(spec, args.size, args.supersample, glow=not args.no_glow)
+    lin, arrow_alpha = composite_icon(spec, args.size, args.supersample, glow=not args.no_glow)
+    rgb = srgb_oetf(lin)   # gamma-encoded, for the SDR file and the near-white test
     mask, photometric = build_arrow_mask(rgb, arrow_alpha, args.mask_mode)
     coverage = float(mask.mean())
     print(f"  arrow mask coverage: {coverage * 100:.2f}% of canvas "
@@ -491,20 +554,35 @@ def main():
     for nits in args.nits:
         emit(
             f"cotera-linkedin-hdr-icon-{nits}nits.jpg",
-            encode_pq(rgb, mask, nits, args.sdr_white),
+            encode_pq(lin, mask, nits, args.sdr_white),
             pq_profile,
             f"HDR, arrow at {nits} nits",
         )
 
+    # Safari/ColorSync probe: identical pixels, conventional full-range PQ curve.
+    emit(
+        f"cotera-linkedin-hdr-icon-{args.arrow_nits}nits-fullrange.jpg",
+        encode_pq(lin, mask, args.arrow_nits, args.sdr_white),
+        pq_profile_full,
+        f"HDR, arrow at {args.arrow_nits} nits, full-range PQ curve",
+    )
+
+    png_name = f"cotera-linkedin-hdr-icon-{args.arrow_nits}nits-cicp.png"
+    png_path = save_png_cicp(out / png_name, encode_pq(lin, mask, args.arrow_nits, args.sdr_white))
+    manifest.append({"file": png_name, "bytes": png_path.stat().st_size,
+                     "note": "HDR control, PNG cICP chunk (documented Safari path)"})
+    print(f"  {png_name:44s} {png_path.stat().st_size:>8,d} B  PNG cICP control")
+
     # -- 4. isolated arrow ---------------------------------------------------
     print(f"\nisolated arrow (800x800 on {args.arrow_bg}):")
-    a_rgb, a_alpha = composite_arrow(spec, arrow_vb, args.size, args.supersample, args.arrow_bg)
+    a_lin, a_alpha = composite_arrow(spec, arrow_vb, args.size, args.supersample, args.arrow_bg)
+    a_rgb = srgb_oetf(a_lin)
     a_mask, _ = build_arrow_mask(a_rgb, a_alpha, args.mask_mode)
     print(f"  arrow mask coverage: {a_mask.mean() * 100:.2f}% of canvas")
     emit("cotera-linkedin-sdr-arrow.jpg", to_uint8(a_rgb), srgb_profile, "SDR control, sRGB")
     emit(
         f"cotera-linkedin-hdr-arrow-{args.arrow_nits}nits.jpg",
-        encode_pq(a_rgb, a_mask, args.arrow_nits, args.sdr_white),
+        encode_pq(a_lin, a_mask, args.arrow_nits, args.sdr_white),
         pq_profile,
         f"HDR, arrow at {args.arrow_nits} nits",
     )
@@ -520,11 +598,20 @@ def main():
     print("\nround trip (decoded back out of the saved JPEGs):")
     report = {}
     tolerance = args.sdr_white * 1.05
+    # Pixels touching the glyph legitimately carry some of the arrow's light
+    # through antialiasing, so hold them out: this check is for mask leakage
+    # into the purple field, not for the edge itself.
+    near_arrow = mask > 0.001
+    for _ in range(2):
+        near_arrow = (near_arrow
+                      | np.roll(near_arrow, 1, 0) | np.roll(near_arrow, -1, 0)
+                      | np.roll(near_arrow, 1, 1) | np.roll(near_arrow, -1, 1))
+    field = ~near_arrow
     for nits in args.nits:
         arr = np.asarray(Image.open(out / f"cotera-linkedin-hdr-icon-{nits}nits.jpg"))
         decoded = pq_eotf(arr.astype(np.float64).max(axis=2) / 255.0)
         interior = mask > 0.999
-        background = mask < 0.001
+        background = field
         over = int((decoded[background] > args.sdr_white).sum())
         way_over = int((decoded[background] > tolerance).sum())
         report[f"{nits}nits"] = {
