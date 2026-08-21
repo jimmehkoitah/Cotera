@@ -1,0 +1,184 @@
+[
+  {
+    "file": "cotera-linkedin-sdr-icon-standard.jpg",
+    "kind": "SDR control",
+    "bytes": 61659,
+    "peak_nits": null,
+    "sdr_white_multiple": 1.0
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-standard-600nits.jpg",
+    "kind": "PQ + ICC @ 600 nits",
+    "bytes": 60503,
+    "peak_nits": 600,
+    "sdr_white_multiple": 2.96
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-standard-600nits-gainmap.jpg",
+    "kind": "gain map @ 600 nits",
+    "bytes": 93825,
+    "peak_nits": 600,
+    "sdr_white_multiple": 2.96
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-standard-800nits.jpg",
+    "kind": "PQ + ICC @ 800 nits",
+    "bytes": 61222,
+    "peak_nits": 800,
+    "sdr_white_multiple": 3.94
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-standard-800nits-gainmap.jpg",
+    "kind": "gain map @ 800 nits",
+    "bytes": 94790,
+    "peak_nits": 800,
+    "sdr_white_multiple": 3.94
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-standard-1200nits.jpg",
+    "kind": "PQ + ICC @ 1200 nits",
+    "bytes": 60881,
+    "peak_nits": 1200,
+    "sdr_white_multiple": 5.91
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-standard-1200nits-gainmap.jpg",
+    "kind": "gain map @ 1200 nits",
+    "bytes": 96074,
+    "peak_nits": 1200,
+    "sdr_white_multiple": 5.91
+  },
+  {
+    "file": "cotera-linkedin-sdr-icon-smaller.jpg",
+    "kind": "SDR control",
+    "bytes": 58613,
+    "peak_nits": null,
+    "sdr_white_multiple": 1.0
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-600nits.jpg",
+    "kind": "PQ + ICC @ 600 nits",
+    "bytes": 57561,
+    "peak_nits": 600,
+    "sdr_white_multiple": 2.96
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-600nits-gainmap.jpg",
+    "kind": "gain map @ 600 nits",
+    "bytes": 87106,
+    "peak_nits": 600,
+    "sdr_white_multiple": 2.96
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-800nits.jpg",
+    "kind": "PQ + ICC @ 800 nits",
+    "bytes": 58344,
+    "peak_nits": 800,
+    "sdr_white_multiple": 3.94
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-800nits-gainmap.jpg",
+    "kind": "gain map @ 800 nits",
+    "bytes": 87954,
+    "peak_nits": 800,
+    "sdr_white_multiple": 3.94
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-1200nits.jpg",
+    "kind": "PQ + ICC @ 1200 nits",
+    "bytes": 58613,
+    "peak_nits": 1200,
+    "sdr_white_multiple": 5.91
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-1200nits-gainmap.jpg",
+    "kind": "gain map @ 1200 nits",
+    "bytes": 89169,
+    "peak_nits": 1200,
+    "sdr_white_multiple": 5.91
+  },
+  {
+    "file": "cotera-linkedin-sdr-icon-smaller-tightglow.jpg",
+    "kind": "SDR control",
+    "bytes": 57147,
+    "peak_nits": null,
+    "sdr_white_multiple": 1.0
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-tightglow-600nits.jpg",
+    "kind": "PQ + ICC @ 600 nits",
+    "bytes": 56856,
+    "peak_nits": 600,
+    "sdr_white_multiple": 2.96
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-tightglow-600nits-gainmap.jpg",
+    "kind": "gain map @ 600 nits",
+    "bytes": 77279,
+    "peak_nits": 600,
+    "sdr_white_multiple": 2.96
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-tightglow-800nits.jpg",
+    "kind": "PQ + ICC @ 800 nits",
+    "bytes": 57304,
+    "peak_nits": 800,
+    "sdr_white_multiple": 3.94
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-tightglow-800nits-gainmap.jpg",
+    "kind": "gain map @ 800 nits",
+    "bytes": 77521,
+    "peak_nits": 800,
+    "sdr_white_multiple": 3.94
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-tightglow-1200nits.jpg",
+    "kind": "PQ + ICC @ 1200 nits",
+    "bytes": 56942,
+    "peak_nits": 1200,
+    "sdr_white_multiple": 5.91
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-tightglow-1200nits-gainmap.jpg",
+    "kind": "gain map @ 1200 nits",
+    "bytes": 77959,
+    "peak_nits": 1200,
+    "sdr_white_multiple": 5.91
+  },
+  {
+    "file": "cotera-linkedin-sdr-arrow.jpg",
+    "kind": "SDR control",
+    "bytes": 41820,
+    "peak_nits": null,
+    "sdr_white_multiple": 1.0
+  },
+  {
+    "file": "cotera-linkedin-hdr-arrow-800nits.jpg",
+    "kind": "PQ + ICC @ 800 nits",
+    "bytes": 54474,
+    "peak_nits": 800,
+    "sdr_white_multiple": 3.94
+  },
+  {
+    "file": "cotera-linkedin-hdr-arrow-800nits-gainmap.jpg",
+    "kind": "gain map @ 800 nits",
+    "bytes": 64234,
+    "peak_nits": 800,
+    "sdr_white_multiple": 3.94
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-tightglow-800nits.avif",
+    "kind": "CICP 9/16 (BT.2020 + PQ)",
+    "bytes": 4041,
+    "peak_nits": 800,
+    "sdr_white_multiple": 3.94
+  },
+  {
+    "file": "cotera-linkedin-hdr-icon-smaller-tightglow-800nits.png",
+    "kind": "CICP 9/16 (BT.2020 + PQ)",
+    "bytes": 548173,
+    "peak_nits": 800,
+    "sdr_white_multiple": 3.94
+  }
+]
