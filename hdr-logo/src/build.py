@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""
+build -- generate the full set of Cotera HDR logo assets.
+
+    python3 src/build.py                    # default: 1200x1200, 800 nit mark
+    python3 src/build.py --peak 600         # gentler
+    python3 src/build.py --size 1200x627    # landscape
+    python3 src/build.py --preset subtle
+
+Every output is written to out/ and then validated by src/validate.py.
+"""
+
+import argparse
+import json
+import os
+import sys
+import time
+
+import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import compose
+import encode
+import hdrkit as k
+import ultrahdr
+import validate
+
+
+PRESETS = {
+    # peak nits, bloom nits -- expressed as multiples of SDR white in the docs
+    'subtle':      dict(peak_nits=450.0,  bloom_peak_nits=200.0),   # 2.2x
+    'default':     dict(peak_nits=800.0,  bloom_peak_nits=300.0),   # 3.9x
+    'strong':      dict(peak_nits=1200.0, bloom_peak_nits=420.0),   # 5.9x
+    'obnoxious':   dict(peak_nits=2000.0, bloom_peak_nits=700.0),   # 9.9x -- don't
+}
+
+
+def build_all(svg, outdir, cfg, name='cotera-arrow', quiet=False):
+    os.makedirs(outdir, exist_ok=True)
+    t0 = time.time()
+
+    def say(*a):
+        if not quiet:
+            print(*a, flush=True)
+
+    say(f'· rasterising and compositing at {cfg["canvas"]}px x{cfg["supersample"]} supersample …')
+    layers = compose.build_layers(svg, cfg)
+    hdr = compose.render_hdr(layers)
+    sdr = compose.render_sdr(layers)
+
+    stats = compose.scene_stats(hdr)
+    say('· scene: peak {peak_nits:.0f} nits = {sdr_white_multiple:.2f}x SDR white, '
+        '{frac_above_sdr_white:.1%} of frame above SDR white, APL {apl_vs_sdr_white:.2f}x'
+        .format(**stats))
+
+    p = lambda ext: os.path.join(outdir, f'{name}{ext}')
+    written = {}
+
+    # --- SDR rendition (also the base layer of the gain-map file) ---
+    sdr8 = encode.write_sdr(p('-sdr.png'), p('-sdr.jpg'), sdr)
+    written['sdr_png'] = p('-sdr.png')
+    written['sdr_jpg'] = p('-sdr.jpg')
+    say('· SDR fallback written')
+
+    # --- gain-map HDR JPEG ---
+    gain, meta = ultrahdr.compute_gainmap(hdr, sdr)
+    info = ultrahdr.build(p('-ultrahdr.jpg'), sdr8, gain, meta)
+    written['ultrahdr_jpg'] = p('-ultrahdr.jpg')
+    say(f'· Ultra HDR JPEG written ({info["total"]:,} bytes: '
+        f'{info["primary_bytes"]:,} base + {info["gainmap_bytes"]:,} gain map)')
+
+    # --- PQ renditions ---
+    encode.write_avif_pq(p('-hdr-pq.avif'), hdr)
+    written['avif'] = p('-hdr-pq.avif')
+    say('· AVIF (BT.2020 / PQ, 10-bit) written')
+
+    encode.write_png_pq(p('-hdr-pq.png'), hdr)
+    written['png'] = p('-hdr-pq.png')
+    say('· PNG (BT.2020 / PQ, 16-bit, cICP) written')
+
+    meta_out = dict(
+        source_svg=svg, name=name, config={kk: (list(v) if isinstance(v, tuple) else v)
+                                           for kk, v in cfg.items()},
+        scene=stats, gain_map=meta, ultrahdr_container=info,
+        sdr_white_nits=k.SDR_WHITE_NITS, files=written,
+        built_seconds=round(time.time() - t0, 1),
+    )
+    with open(os.path.join(outdir, f'{name}-build.json'), 'w') as f:
+        json.dump(meta_out, f, indent=2)
+
+    say(f'· done in {meta_out["built_seconds"]}s')
+    return written, hdr, sdr, gain, meta
+
+
+def main():
+    here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument('--svg', default=os.path.join(here, 'assets/cotera-arrow.svg'))
+    ap.add_argument('--out', default=os.path.join(here, 'out'))
+    ap.add_argument('--name', default='cotera-arrow')
+    ap.add_argument('--size', default='1200', help='NNN or WxH (square only for now)')
+    ap.add_argument('--supersample', type=int, default=3)
+    ap.add_argument('--preset', choices=sorted(PRESETS), default='default')
+    ap.add_argument('--peak', type=float, help='mark luminance in nits (overrides preset)')
+    ap.add_argument('--bloom', type=float, help='halo luminance in nits (overrides preset)')
+    ap.add_argument('--mark-frac', type=float, default=0.46)
+    ap.add_argument('--no-validate', action='store_true')
+    a = ap.parse_args()
+
+    cfg = dict(compose.DEFAULTS)
+    cfg.update(PRESETS[a.preset])
+    cfg['canvas'] = int(a.size.split('x')[0])
+    cfg['supersample'] = a.supersample
+    cfg['mark_frac'] = a.mark_frac
+    if a.peak:
+        cfg['peak_nits'] = a.peak
+    if a.bloom:
+        cfg['bloom_peak_nits'] = a.bloom
+
+    print(f'Cotera HDR logo build — preset "{a.preset}", '
+          f'mark at {cfg["peak_nits"]:.0f} nits '
+          f'({cfg["peak_nits"] / k.SDR_WHITE_NITS:.2f}x SDR white)')
+    written, *_ = build_all(a.svg, a.out, cfg, a.name)
+
+    if not a.no_validate:
+        print('\n— validating produced files —')
+        ok = True
+        ok &= validate.report(validate.check_ultrahdr(written['ultrahdr_jpg']))
+        ok &= validate.report(validate.check_png_cicp(written['png']))
+        ok &= validate.report(validate.check_avif(written['avif']))
+        if not ok:
+            sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()
