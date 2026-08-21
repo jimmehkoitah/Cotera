@@ -1,0 +1,69 @@
+{
+  "source_svg": "/home/user/Cotera/hdr-logo/assets/cotera-arrow.svg",
+  "name": "cotera-arrow-landscape",
+  "config": {
+    "canvas": 1200,
+    "supersample": 3,
+    "mark_frac": 0.46,
+    "y_shift": 0.0,
+    "peak_nits": 800.0,
+    "bloom_peak_nits": 300.0,
+    "bg_top_nits": 5.0,
+    "bg_bottom_nits": 1.1,
+    "sdr_peak_nits": 203.0,
+    "sdr_bloom_nits": 118.0,
+    "mark_hex": "#ffffff",
+    "bloom_hex": "#6366f2",
+    "bg_hex": "#322f82",
+    "bloom_sigmas": [
+      0.01,
+      0.03,
+      0.075,
+      0.17
+    ],
+    "bloom_weights": [
+      0.44,
+      0.3,
+      0.17,
+      0.16
+    ],
+    "width": 1200,
+    "height": 627
+  },
+  "scene": {
+    "peak_nits": 800.0,
+    "mean_nits": 32.23619724671213,
+    "sdr_white_multiple": 3.9408866995073892,
+    "frac_above_sdr_white": 0.033302764486975014,
+    "frac_above_2x": 0.032962519936204145,
+    "apl_vs_sdr_white": 0.1587990012153307
+  },
+  "gain_map": {
+    "version": "1.0",
+    "gain_map_min": 0.0,
+    "gain_map_max": 1.9618612102884663,
+    "gamma": 1.0,
+    "offset_sdr": 0.015625,
+    "offset_hdr": 0.015625,
+    "hdr_capacity_min": 0.0,
+    "hdr_capacity_max": 1.9618612102884663,
+    "base_rendition_is_hdr": false
+  },
+  "ultrahdr_container": {
+    "path": "/home/user/Cotera/hdr-logo/out/cotera-arrow-landscape-ultrahdr.jpg",
+    "primary_bytes": 35269,
+    "gainmap_bytes": 28547,
+    "total": 63816,
+    "mpf_endian_offset": 792,
+    "secondary_offset": 34477
+  },
+  "sdr_white_nits": 203.0,
+  "files": {
+    "sdr_png": "/home/user/Cotera/hdr-logo/out/cotera-arrow-landscape-sdr.png",
+    "sdr_jpg": "/home/user/Cotera/hdr-logo/out/cotera-arrow-landscape-sdr.jpg",
+    "ultrahdr_jpg": "/home/user/Cotera/hdr-logo/out/cotera-arrow-landscape-ultrahdr.jpg",
+    "avif": "/home/user/Cotera/hdr-logo/out/cotera-arrow-landscape-hdr-pq.avif",
+    "png": "/home/user/Cotera/hdr-logo/out/cotera-arrow-landscape-hdr-pq.png"
+  },
+  "built_seconds": 16.4
+}

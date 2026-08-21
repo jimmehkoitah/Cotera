@@ -27,6 +27,16 @@ import ultrahdr
 import validate
 
 
+# LinkedIn surface -> pixel dimensions. Portrait wins the most feed height on
+# mobile, which is where HDR displays actually are.
+SIZES = {
+    'square':    (1200, 1200),   # standard feed image
+    'portrait':  (1080, 1350),   # tallest allowed in-feed; most screen real estate
+    'landscape': (1200, 627),    # link-preview shape
+    'logo':      (400, 400),     # company page / profile avatar
+}
+
+
 PRESETS = {
     # peak nits, bloom nits -- expressed as multiples of SDR white in the docs
     'subtle':      dict(peak_nits=450.0,  bloom_peak_nits=200.0),   # 2.2x
@@ -44,7 +54,8 @@ def build_all(svg, outdir, cfg, name='cotera-arrow', quiet=False):
         if not quiet:
             print(*a, flush=True)
 
-    say(f'· rasterising and compositing at {cfg["canvas"]}px x{cfg["supersample"]} supersample …')
+    say(f'· compositing {cfg.get("width", cfg["canvas"])}x{cfg.get("height", cfg["canvas"])} '
+        f'at x{cfg["supersample"]} supersample …')
     layers = compose.build_layers(svg, cfg)
     hdr = compose.render_hdr(layers)
     sdr = compose.render_sdr(layers)
@@ -99,8 +110,9 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--svg', default=os.path.join(here, 'assets/cotera-arrow.svg'))
     ap.add_argument('--out', default=os.path.join(here, 'out'))
-    ap.add_argument('--name', default='cotera-arrow')
-    ap.add_argument('--size', default='1200', help='NNN or WxH (square only for now)')
+    ap.add_argument('--name', default=None, help='output basename (defaults to cotera-arrow-<size>)')
+    ap.add_argument('--size', default='square',
+                    help='a named size (%s), NNN, or WxH' % ', '.join(SIZES))
     ap.add_argument('--supersample', type=int, default=3)
     ap.add_argument('--preset', choices=sorted(PRESETS), default='default')
     ap.add_argument('--peak', type=float, help='mark luminance in nits (overrides preset)')
@@ -111,7 +123,14 @@ def main():
 
     cfg = dict(compose.DEFAULTS)
     cfg.update(PRESETS[a.preset])
-    cfg['canvas'] = int(a.size.split('x')[0])
+    if a.size in SIZES:
+        cfg['width'], cfg['height'] = SIZES[a.size]
+    elif 'x' in a.size:
+        w, h = a.size.lower().split('x')
+        cfg['width'], cfg['height'] = int(w), int(h)
+    else:
+        cfg['width'] = cfg['height'] = int(a.size)
+    cfg['canvas'] = cfg['width']
     cfg['supersample'] = a.supersample
     cfg['mark_frac'] = a.mark_frac
     if a.peak:
@@ -119,10 +138,11 @@ def main():
     if a.bloom:
         cfg['bloom_peak_nits'] = a.bloom
 
-    print(f'Cotera HDR logo build — preset "{a.preset}", '
+    name = a.name or f'cotera-arrow-{a.size}'
+    print(f'Cotera HDR logo build — {cfg["width"]}x{cfg["height"]}, preset "{a.preset}", '
           f'mark at {cfg["peak_nits"]:.0f} nits '
           f'({cfg["peak_nits"] / k.SDR_WHITE_NITS:.2f}x SDR white)')
-    written, *_ = build_all(a.svg, a.out, cfg, a.name)
+    written, *_ = build_all(a.svg, a.out, cfg, name)
 
     if not a.no_validate:
         print('\n— validating produced files —')

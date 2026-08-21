@@ -184,13 +184,38 @@ def report(res):
     return res['ok']
 
 
-if __name__ == '__main__':
+def classify(path):
+    """What kind of file is this, actually? Decided from the bytes, not the
+    extension -- an SDR control file must not be reported as a broken HDR one."""
+    data = open(path, 'rb').read(1 << 16)
+    if data[:2] == b'\xff\xd8':
+        return 'ultrahdr' if b'MPF\x00' in data else 'sdr-jpeg'
+    if data[:8] == b'\x89PNG\r\n\x1a\n':
+        return 'png-cicp' if b'cICP' in data else 'sdr-png'
+    if data[4:12] == b'ftypavif' or b'ftypavif' in data[:64]:
+        return 'avif'
+    return 'unknown'
+
+
+def main(paths):
     ok = True
-    for p in sys.argv[1:]:
-        if p.endswith('.jpg') or p.endswith('.jpeg'):
+    for p in paths:
+        kind = classify(p)
+        if kind == 'ultrahdr':
             ok &= report(check_ultrahdr(p))
-        elif p.endswith('.png'):
+        elif kind == 'png-cicp':
             ok &= report(check_png_cicp(p))
-        elif p.endswith('.avif'):
+        elif kind == 'avif':
             ok &= report(check_avif(p))
-    sys.exit(0 if ok else 1)
+        elif kind in ('sdr-jpeg', 'sdr-png'):
+            print(f'\n=== {p} ===')
+            print(f'  ==> SDR control file ({kind}) — carries no HDR tagging, as intended')
+        else:
+            print(f'\n=== {p} ===')
+            print('  ==> UNRECOGNISED file type')
+            ok = False
+    return ok
+
+
+if __name__ == '__main__':
+    sys.exit(0 if main(sys.argv[1:]) else 1)

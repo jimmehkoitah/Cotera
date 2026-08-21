@@ -35,25 +35,24 @@ def render_svg_alpha(svg_path, px, pad_frac=0.0):
     return np.asarray(im, np.float64)[..., 3] / 255.0
 
 
-def fit_mask(mask, canvas_px, mark_frac=0.52, y_shift=0.0):
-    """Trim a mask to its ink bounds and re-place it on a square canvas so the
-    mark occupies `mark_frac` of the canvas along its longest axis."""
+def fit_mask(mask, canvas, mark_frac=0.52, y_shift=0.0):
+    """Trim a mask to its ink bounds and re-place it on a canvas of size
+    (width, height) so the mark occupies `mark_frac` of the SHORT axis."""
+    cw, ch = canvas
     ys, xs = np.nonzero(mask > 1e-3)
     if len(xs) == 0:
         raise ValueError('mask is empty')
     sub = mask[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
     h, w = sub.shape
-    target = mark_frac * canvas_px
-    scale = target / max(h, w)
-    sub = zoom(sub, scale, order=3, mode='constant', cval=0.0)
-    sub = np.clip(sub, 0.0, 1.0)
+    target = mark_frac * min(cw, ch)
+    sub = np.clip(zoom(sub, target / max(h, w), order=3, mode='constant', cval=0.0), 0.0, 1.0)
     h, w = sub.shape
 
-    out = np.zeros((canvas_px, canvas_px), np.float64)
-    top = int(round((canvas_px - h) / 2 + y_shift * canvas_px))
-    left = int(round((canvas_px - w) / 2))
-    top = max(0, min(canvas_px - h, top))
-    left = max(0, min(canvas_px - w, left))
+    out = np.zeros((ch, cw), np.float64)
+    top = int(round((ch - h) / 2 + y_shift * ch))
+    left = int(round((cw - w) / 2))
+    top = max(0, min(ch - h, top))
+    left = max(0, min(cw - w, left))
     out[top:top + h, left:left + w] = sub
     return out
 
@@ -62,7 +61,7 @@ def fit_mask(mask, canvas_px, mark_frac=0.52, y_shift=0.0):
 # Bloom
 # --------------------------------------------------------------------------
 
-def multiscale_bloom(mask, sigmas_frac, weights, px):
+def multiscale_bloom(mask, sigmas_frac, weights, ref_px):
     """Sum of gaussians at several scales -- a wide, soft falloff that survives
     tone mapping instead of collapsing into a hard ring.
 
@@ -72,7 +71,7 @@ def multiscale_bloom(mask, sigmas_frac, weights, px):
     small = zoom(mask, 0.5, order=1, mode='constant', cval=0.0)
     acc = np.zeros_like(small)
     for sf, w in zip(sigmas_frac, weights):
-        sigma = max(sf * px * 0.5, 0.6)
+        sigma = max(sf * ref_px * 0.5, 0.6)
         acc += w * gaussian_filter(small, sigma, mode='constant', cval=0.0)
     acc = zoom(acc, (mask.shape[0] / acc.shape[0], mask.shape[1] / acc.shape[1]),
                order=1, mode='constant', cval=0.0)
@@ -86,7 +85,7 @@ def multiscale_bloom(mask, sigmas_frac, weights, px):
 # --------------------------------------------------------------------------
 
 DEFAULTS = dict(
-    canvas=1200,
+    canvas=1200,          # square shorthand; width/height override it
     supersample=3,
     mark_frac=0.46,
     y_shift=0.0,
@@ -110,7 +109,7 @@ DEFAULTS = dict(
 
 
 def build_layers(svg_path, cfg=None):
-    """Rasterise once and return the geometry as resolution-independent layers.
+    """Rasterise once and return the geometry as reusable layers.
 
     Separating geometry from luminance matters: the HDR and SDR renditions must
     be the *same picture* at different brightnesses, otherwise the gain map
@@ -120,19 +119,21 @@ def build_layers(svg_path, cfg=None):
     c = dict(DEFAULTS)
     if cfg:
         c.update(cfg)
-    px = c['canvas'] * c['supersample']
+    cw, ch = c.get('width', c['canvas']), c.get('height', c['canvas'])
     s = c['supersample']
-    h = c['canvas']
+    sw, sh = cw * s, ch * s
 
-    mask = fit_mask(render_svg_alpha(svg_path, px), px, c['mark_frac'], c['y_shift'])
-    bloom = multiscale_bloom(mask, c['bloom_sigmas'], c['bloom_weights'], px)
-    ramp = np.repeat((np.linspace(1.0, 0.0, px) ** 1.6)[:, None], px, axis=1)
+    # Rasterise the SVG square at the resolution the mark will actually need,
+    # then place it -- rsvg only renders into a square viewBox.
+    src = render_svg_alpha(svg_path, max(sw, sh))
+    mask = fit_mask(src, (sw, sh), c['mark_frac'], c['y_shift'])
+    bloom = multiscale_bloom(mask, c['bloom_sigmas'], c['bloom_weights'], min(sw, sh))
+    ramp = np.repeat((np.linspace(1.0, 0.0, sh) ** 1.6)[:, None], sw, axis=1)
 
-    # Resolve supersampling here, once, on the geometry itself.
     if s > 1:
-        mask = mask.reshape(h, s, h, s).mean(axis=(1, 3))
-        bloom = bloom.reshape(h, s, h, s).mean(axis=(1, 3))
-        ramp = ramp.reshape(h, s, h, s).mean(axis=(1, 3))
+        mask = mask.reshape(ch, s, cw, s).mean(axis=(1, 3))
+        bloom = bloom.reshape(ch, s, cw, s).mean(axis=(1, 3))
+        ramp = ramp.reshape(ch, s, cw, s).mean(axis=(1, 3))
 
     return dict(mask=np.clip(mask, 0, 1), bloom=np.clip(bloom, 0, 1),
                 ramp=ramp, cfg=c)
