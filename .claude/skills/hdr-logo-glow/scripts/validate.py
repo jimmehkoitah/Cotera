@@ -184,12 +184,112 @@ def report(res):
     return res['ok']
 
 
+def _jpeg_icc(data):
+    """Reassemble an ICC profile from its APP2 segments (it is split across
+    segments when larger than 64 KB, which a PQ profile with a 4096-entry TRC
+    generally is not, but correctness is cheap here)."""
+    chunks = {}
+    for _pos, marker, payload in _jpeg_segments(data):
+        if marker == 0xE2 and payload.startswith(b'ICC_PROFILE\x00'):
+            seq, count = payload[12], payload[13]
+            chunks[seq] = payload[14:]
+    if not chunks:
+        return None
+    return b''.join(chunks[i] for i in sorted(chunks))
+
+
+def check_pq_icc_jpeg(path):
+    """A JPEG carrying a PQ ICC profile.
+
+    Structural validity is all this can establish. An ICC profile describes a
+    colour space; it carries no "treat this as absolute luminance" signal, so a
+    passing file here is NOT a guarantee of HDR rendering -- and its fallback is
+    the worst of any format. The check says so rather than implying otherwise.
+    """
+    import io
+    data = open(path, 'rb').read()
+    out = {'file': path, 'bytes': len(data), 'ok': True, 'checks': []}
+
+    def note(ok, msg):
+        out['checks'].append(('PASS' if ok else 'FAIL', msg))
+        if not ok:
+            out['ok'] = False
+
+    icc = _jpeg_icc(data)
+    note(icc is not None, 'JPEG carries an embedded ICC profile')
+    if not icc:
+        return out
+    out['icc_bytes'] = len(icc)
+
+    note(icc[36:40] == b'acsp', "ICC header has the 'acsp' file signature")
+    note(icc[16:20] == b'RGB ', f'ICC data colour space is RGB (got {icc[16:20]!r})')
+    note(icc[20:24] == b'XYZ ', f'ICC PCS is XYZ (got {icc[20:24]!r})')
+    ver = icc[8]
+    out['icc_version'] = f'{ver}.{icc[9] >> 4}'
+    note(ver in (2, 4), f'ICC version {out["icc_version"]}')
+
+    # tag table: a PQ curve cannot be a parametric curve, so expect sampled TRCs
+    n = struct.unpack('>I', icc[128:132])[0]
+    tags = {}
+    for i in range(n):
+        o = 132 + 12 * i
+        sig, off, size = struct.unpack('>4sII', icc[o:o + 12])
+        tags[sig] = (off, size)
+    out['icc_tags'] = sorted(t.decode('latin1') for t in tags)
+    for req in (b'desc', b'wtpt', b'rXYZ', b'gXYZ', b'bXYZ', b'rTRC', b'gTRC', b'bTRC'):
+        note(req in tags, f'ICC has the {req.decode()} tag')
+
+    if b'rTRC' in tags:
+        off, size = tags[b'rTRC']
+        kind = icc[off:off + 4]
+        note(kind == b'curv', f'rTRC is a sampled curveType (got {kind!r}) -- '
+                              'PQ cannot be a parametricCurveType')
+        if kind == b'curv':
+            count = struct.unpack('>I', icc[off + 8:off + 12])[0]
+            out['trc_samples'] = count
+            note(count >= 256, f'rTRC has {count} samples (enough to describe PQ)')
+            # A PQ curve is extremely concave: the midpoint sample sits far below
+            # 0.5. A gamma ~2.2 curve would land near 0.21; PQ lands under 0.01.
+            mid = struct.unpack('>H', icc[off + 12 + (count // 2) * 2:
+                                          off + 14 + (count // 2) * 2])[0] / 65535.0
+            out['trc_midpoint'] = round(mid, 6)
+            note(mid < 0.05,
+                 f'TRC midpoint {mid:.5f} is consistent with a PQ curve '
+                 f'(a plain gamma curve would be ~0.2)')
+
+    try:
+        from PIL import ImageCms
+        prof = ImageCms.getOpenProfile(io.BytesIO(icc))
+        desc = ImageCms.getProfileDescription(prof).strip()
+        out['profile_description'] = desc
+        note(True, f'lcms2 accepts the profile ("{desc}")')
+        note('srgb' not in desc.lower(),
+             f'profile is not sRGB (description: "{desc}")')
+    except Exception as e:                                   # pragma: no cover
+        note(False, f'lcms2 rejected the embedded profile: {e}')
+
+    prog = b'\xff\xc2' in data[:4096] or b'\xff\xc2' in data
+    out['progressive'] = prog
+    out['caveat'] = ('Structurally valid only. ICC carries no absolute-luminance '
+                     'signal, and a viewer that colour-manages this without HDR '
+                     'awareness renders it near-black. Ship a gain-map file too.')
+    return out
+
+
 def classify(path):
     """What kind of file is this, actually? Decided from the bytes, not the
     extension -- an SDR control file must not be reported as a broken HDR one."""
     data = open(path, 'rb').read(1 << 16)
     if data[:2] == b'\xff\xd8':
-        return 'ultrahdr' if b'MPF\x00' in data else 'sdr-jpeg'
+        if b'MPF\x00' in data:
+            return 'ultrahdr'
+        # An ICC profile means this is colour-managed, not a plain SDR control.
+        # Reporting a PQ+ICC file as "SDR, as intended" would be a lie that lets
+        # a broken asset ship, so read the profile before deciding.
+        full = open(path, 'rb').read()
+        if b'ICC_PROFILE\x00' in full:
+            return 'pq-icc-jpeg'
+        return 'sdr-jpeg'
     if data[:8] == b'\x89PNG\r\n\x1a\n':
         return 'png-cicp' if b'cICP' in data else 'sdr-png'
     if data[4:12] == b'ftypavif' or b'ftypavif' in data[:64]:
@@ -203,6 +303,8 @@ def main(paths):
         kind = classify(p)
         if kind == 'ultrahdr':
             ok &= report(check_ultrahdr(p))
+        elif kind == 'pq-icc-jpeg':
+            ok &= report(check_pq_icc_jpeg(p))
         elif kind == 'png-cicp':
             ok &= report(check_png_cicp(p))
         elif kind == 'avif':
