@@ -1,0 +1,150 @@
+# Cotera HDR logo — LinkedIn test kit
+
+SDR + HDR/PQ variants of the Cotera icon, built so that **only the white arrow**
+emits above SDR white on an HDR-capable display, while the purple gradient stays
+exactly where it was.
+
+**Upload this one first: `cotera-linkedin-hdr-icon-800nits.jpg`.**
+
+---
+
+## Read this before you post
+
+This is **not a supported LinkedIn feature.** It exploits the fact that LinkedIn
+strips gain maps but appears to preserve some embedded ICC profiles. Two things
+follow from that:
+
+1. It may simply not work, and may stop working without notice.
+2. **The failure mode is ugly, not neutral.** If LinkedIn strips the ICC profile,
+   the PQ code values get read as if they were sRGB, and the image renders as a
+   washed-out grey-lilac square — not as the normal logo. This is the whole risk
+   of the technique.
+
+So: **test on your personal profile first, never on the Cotera company page.**
+Post it, look at it, and delete it if it renders wrong. Only promote the file to
+a real brand surface once you have seen it survive.
+
+## Test order
+
+| # | File | What you are checking |
+|---|------|----------------------|
+| 1 | `cotera-linkedin-sdr-icon.jpg` | Baseline. Plain sRGB. Establishes what "normal" looks like in your feed on this device. |
+| 2 | `cotera-linkedin-hdr-icon-800nits.jpg` | **The primary file.** Arrow at 800 nits ≈ 4× SDR white. |
+| 3 | `cotera-linkedin-hdr-icon-1200nits.jpg` | Push harder if 800 is too subtle on your display. |
+
+Post each as a normal image post, one at a time. Do not put them in a carousel
+or a document post — those go through different processing.
+
+Extras, once the icon works:
+
+- `cotera-linkedin-hdr-icon-600nits.jpg` — gentler, if 800 blooms too much.
+- `cotera-linkedin-sdr-arrow.jpg` / `cotera-linkedin-hdr-arrow-800nits.jpg` —
+  the arrow glyph alone on near-black. Maximum contrast, so this is the most
+  sensitive test of whether the effect survives at all. Use it to diagnose, not
+  as the brand post.
+
+## How to look at it
+
+- View on an **HDR-capable screen**: iPhone 12 Pro or later, MacBook Pro
+  (2021+ XDR), iPad Pro XDR, or a modern OLED. Full screen brightness, HDR /
+  True Tone on, **not** in Low Power Mode (iOS caps HDR headroom there).
+- Use the **LinkedIn mobile app or Safari/Chrome** — some in-app browsers and
+  desktop Electron wrappers do not do HDR at all.
+- **Compare against normal white UI in the same screenshot-worth of screen**:
+  the LinkedIn nav bar, the white post card background, the white in the SDR
+  control post. The arrow should read as brighter than page white, not merely
+  as white.
+- Scroll the post half off-screen and back. Some HDR paths only kick in once the
+  image is fully composited.
+
+## Reading the result
+
+| What you see | What it means |
+|---|---|
+| Only the arrow pops, brighter than page white | **Success.** This is the effect. |
+| Nothing pops; looks like the SDR control | ICC profile probably stripped or ignored. Download the processed image (below) and re-inspect. |
+| The whole square glows, purple included | The white mask selected too much. Re-run with a stricter mask (see below). |
+| Washed-out, grey, low contrast | The PQ path is being mishandled — profile stripped or replaced. Not a mask problem. |
+
+### If it does not glow, check what LinkedIn actually served
+
+Right-click the posted image → copy image address, then:
+
+```bash
+curl -sL "<image url>" -o processed.jpg
+exiftool processed.jpg | grep -i -E "profile|color|progressive"
+python3 cotera-hdr/verify_assets.py     # after dropping processed.jpg into output/
+```
+
+Report back what survived:
+
+- `Profile Description : Cotera Rec.2100 PQ ...` present → profile survived; the
+  problem is display-side, not LinkedIn-side.
+- No ICC profile, or `sRGB IEC61966-2.1` → **LinkedIn stripped it.** The trick is
+  dead for that upload path, and the image will look washed out. Pull the post.
+- Profile present but the file is now baseline instead of progressive → LinkedIn
+  re-encoded but kept the profile; the effect may still work.
+
+## Regenerating / tuning
+
+```bash
+pip install -r cotera-hdr/requirements.txt
+python3 cotera-hdr/make_hdr_logo.py          # writes everything in output/
+python3 cotera-hdr/verify_assets.py          # metadata + colour round-trip checks
+```
+
+Useful knobs:
+
+```bash
+# different peak targets
+python3 cotera-hdr/make_hdr_logo.py --nits 500 700 1000
+
+# stricter mask if the background glows
+python3 cotera-hdr/make_hdr_logo.py --mask-mode geometric
+
+# treat SDR white as something other than the BT.2408 reference 203 nits
+python3 cotera-hdr/make_hdr_logo.py --sdr-white 100
+
+# rebuild from the real source lockup instead of the built-in geometry
+python3 cotera-hdr/make_hdr_logo.py --source path/to/logo-long-solid.svg
+```
+
+## What is in these files
+
+- **Colour space:** BT.2020 primaries, SMPTE ST.2084 (PQ) transfer.
+- **ICC profile:** `Rec2100-PQ.icc`, generated by `cotera-hdr/icc_pq.py` — an
+  ICC v4.4 matrix/shaper profile with Bradford-adapted BT.2020 colorants,
+  4096-entry PQ tone curves, and a `cicp` tag declaring
+  `colour_primaries = 9 (BT.2020)`, `transfer = 16 (ST.2084 PQ)`. The `cicp` tag
+  is what macOS/iOS ColorSync and Chrome/Skia read to decide "this is HDR".
+- **SDR reference white:** 203 nits (ITU-R BT.2408).
+- **JPEG:** progressive, optimized, quality 98, 4:4:4 chroma (no subsampling),
+  no alpha, 800 × 800.
+- The **SDR controls carry a real sRGB profile**; only the HDR variants carry the
+  PQ profile. Nothing silently falls back to sRGB.
+
+### Measured, decoded back out of the saved JPEGs
+
+| File | Arrow median | Background peak | Mask coverage |
+|---|---|---|---|
+| `hdr-icon-600nits` | 610 nits | 210 nits | 17.98% of canvas |
+| `hdr-icon-800nits` | 814 nits | 210 nits | 17.98% |
+| `hdr-icon-1200nits` | 1209 nits | 202 nits | 17.98% |
+
+Background peak stays at or below SDR white (203 nits) — the purple gradient is
+untouched. The one or two pixels a few nits over are JPEG ringing on the arrow
+edge, not mask leakage. Full report: `metadata-verification.txt`.
+
+The SDR fallback is verified numerically, not just by eye: decoding each HDR file
+through its own embedded profile back to sRGB reproduces the SDR control to
+within a mean absolute difference of 1.43/255 (0.58/255 for the arrow file). If
+that number were large, the image would look washed out.
+
+## Note on the long lockup
+
+`cotera-logo-long-solid.svg` was **not** generated: no `logo-long-solid.svg` was
+present, so there is no wordmark path data to clean up. The icon and arrow assets
+were built from the canonical geometry embedded in `make_hdr_logo.py`. Drop the
+real `logo-long-solid.svg` at the repo root and re-run — the script parses the
+gradient, corner radius, arrow paths and wordmark out of it and will emit the
+cleaned lockup automatically.
