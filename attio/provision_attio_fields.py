@@ -95,6 +95,9 @@ def main():
                         "description": field["description"],
                         "api_slug": slug,
                         "type": field["type"],
+                        # Attio rejects the create with `data.config: Required` if this is
+                        # omitted; {} selects the defaults for every type we provision.
+                        "config": {},
                         "is_required": False,
                         "is_unique": False,
                         "is_multiselect": False,
@@ -109,7 +112,7 @@ def main():
             wanted = field.get("options")
             if not wanted:
                 continue
-            present = fetch_options(obj, slug, token) if (slug in existing and args.apply) else set()
+            present = fetch_options(obj, slug, token) if slug in existing else set()
             for title in wanted:
                 if title in present:
                     continue
