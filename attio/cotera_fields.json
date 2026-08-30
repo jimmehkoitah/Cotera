@@ -1,0 +1,181 @@
+{
+  "$comment": "Cotera RevOps Operating System -> Attio custom field spec. Type identifiers are the live values observed on the 'cotera' Attio workspace schema (companies + people) on 2026-08-30.",
+  "objects": {
+    "companies": [
+      {
+        "title": "Account Current Thesis",
+        "api_slug": "current_thesis",
+        "type": "text",
+        "requested_type": "Long text",
+        "description": "Latest account-level hypothesis based on trusted signals and enrichment."
+      },
+      {
+        "title": "Current Thesis Summary",
+        "api_slug": "current_thesis_summary",
+        "type": "text",
+        "requested_type": "Short text",
+        "description": "One-line quick scan summary."
+      },
+      {
+        "title": "Current Thesis Version ID",
+        "api_slug": "current_thesis_version_id",
+        "type": "text",
+        "requested_type": "Short text",
+        "description": "Links CRM context back to Cotera Working Theory / Thesis History."
+      },
+      {
+        "title": "Current Thesis Updated At",
+        "api_slug": "current_thesis_updated_at",
+        "type": "timestamp",
+        "requested_type": "Date/time",
+        "description": "Last time Cotera refreshed the thesis."
+      },
+      {
+        "title": "Latest Signal Type",
+        "api_slug": "latest_signal_type",
+        "type": "text",
+        "requested_type": "Select or short text",
+        "description": "Latest signal category, e.g. hiring_gtm_engineer, linkedin_pain_post, competitor_post_engagement, community_pain_signal, buyer_intent_post."
+      },
+      {
+        "title": "Latest Signal Summary",
+        "api_slug": "latest_signal_summary",
+        "type": "text",
+        "requested_type": "Long text",
+        "description": "Plain-English summary of the newest or strongest signal."
+      },
+      {
+        "title": "Latest Signal Source URL",
+        "api_slug": "latest_signal_source_url",
+        "type": "text",
+        "requested_type": "URL",
+        "description": "Source link for the latest signal."
+      },
+      {
+        "title": "Account Score",
+        "api_slug": "account_score",
+        "type": "number",
+        "requested_type": "Number",
+        "description": "Prioritization score for the account."
+      },
+      {
+        "title": "Account Score Reason",
+        "api_slug": "account_score_reason",
+        "type": "text",
+        "requested_type": "Long text",
+        "description": "Why the account received that score."
+      },
+      {
+        "title": "Enrichment Status",
+        "api_slug": "enrichment_status",
+        "type": "select",
+        "requested_type": "Select",
+        "description": "Current enrichment/completeness state.",
+        "options": ["missing", "partial", "enriched", "needs_review", "stale"]
+      },
+      {
+        "title": "Next Best Action",
+        "api_slug": "next_best_action",
+        "type": "select",
+        "requested_type": "Select or short text",
+        "description": "Suggested next action for the rep.",
+        "options": ["call", "linkedin_touch", "email_follow_up", "warm_path", "add_to_lemlist", "research_more", "skip", "needs_review"]
+      },
+      {
+        "title": "Play Key",
+        "api_slug": "play_key",
+        "type": "text",
+        "requested_type": "Short text",
+        "description": "Current play controlling the account/person motion."
+      },
+      {
+        "title": "Cotera Relationship ID",
+        "api_slug": "cotera_relationship_id",
+        "type": "text",
+        "requested_type": "Short text",
+        "description": "Stable relationship ID from Cotera Relationship Mirror."
+      }
+    ],
+    "people": [
+      {
+        "title": "Persona Thesis",
+        "api_slug": "person_current_thesis",
+        "type": "text",
+        "requested_type": "Long text",
+        "description": "Person-specific Current Thesis when different from account-level thesis."
+      },
+      {
+        "title": "Persona Angle",
+        "api_slug": "persona_angle",
+        "type": "text",
+        "requested_type": "Long text",
+        "description": "Why this person likely cares based on title, function, persona, and signal."
+      },
+      {
+        "title": "3 Questions to Pressure-Test",
+        "api_slug": "three_questions_to_pressure_test",
+        "type": "text",
+        "requested_type": "Long text",
+        "description": "Three concise questions Jim or a rep can use live or in follow-up."
+      },
+      {
+        "title": "Call Context",
+        "api_slug": "call_context",
+        "type": "text",
+        "requested_type": "Long text",
+        "description": "Compact 500-700 character execution context for calls and Lemlist."
+      },
+      {
+        "title": "Context Confidence",
+        "api_slug": "context_confidence",
+        "type": "select",
+        "requested_type": "Select",
+        "description": "Confidence level in the current context.",
+        "options": ["low", "medium", "medium_high", "high"]
+      },
+      {
+        "title": "Needs Review",
+        "api_slug": "needs_review",
+        "type": "checkbox",
+        "requested_type": "Checkbox",
+        "description": "True when context is useful but not strong enough to treat as authoritative."
+      },
+      {
+        "title": "Needs Review Reason",
+        "api_slug": "needs_review_reason",
+        "type": "text",
+        "requested_type": "Long text",
+        "description": "What is missing, uncertain, or requires human judgment."
+      },
+      {
+        "title": "Latest Signal Summary",
+        "api_slug": "latest_signal_summary",
+        "type": "text",
+        "requested_type": "Long text",
+        "description": "Person-level or account-level signal that matters for this person."
+      },
+      {
+        "title": "Recommended Play",
+        "api_slug": "recommended_play",
+        "type": "text",
+        "requested_type": "Short text",
+        "description": "Play this person is currently mapped to."
+      },
+      {
+        "title": "Manual Touch Status",
+        "api_slug": "manual_touch_status",
+        "type": "select",
+        "requested_type": "Select",
+        "description": "Current manual-touch state.",
+        "options": ["not_started", "ready", "in_progress", "completed", "skipped", "needs_review"]
+      },
+      {
+        "title": "Cotera Relationship ID",
+        "api_slug": "cotera_relationship_id",
+        "type": "text",
+        "requested_type": "Short text",
+        "description": "Stable relationship ID from Cotera Relationship Mirror."
+      }
+    ]
+  }
+}
