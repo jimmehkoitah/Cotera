@@ -45,6 +45,13 @@ app.use((req, res, next) => {
   next();
 });
 
+// Until the database is connected, DB-backed endpoints answer 503 instead of the whole app being down.
+let ready = false;
+app.use((req, res, next) => {
+  if (ready || !(req.path.startsWith('/api') || req.path === '/healthz') || req.path === '/api/config') return next();
+  res.status(503).json({ error: 'starting', message: 'The board is starting up. Try again in a few seconds.' });
+});
+
 // ---------- tiny in-memory rate limiter (generous: venue Wi-Fi puts many people behind one IP) ----------
 const buckets = new Map();
 function limit(key, max, windowMs) {
@@ -120,6 +127,7 @@ async function pushPlayer(playerId) {
 io.on('connection', async (socket) => {
   try {
     socket.join('public');
+    if (!ready) return; // they get the board as soon as the database is up
     socket.emit('state', await db.publicState());
     const cookies = parseCookieHeader(socket.handshake.headers.cookie);
     if (socket.handshake.auth?.role === 'admin' && isAdminCookie(cookies.bb_admin)) socket.join('admin');
@@ -254,18 +262,27 @@ app.get('/api/admin/export.csv', requireAdmin, wrap(async (req, res) => {
 app.use((req, res) => res.status(404).json({ error: 'not_found' }));
 
 // ---------- start ----------
-for (let attempt = 1; ; attempt++) {
-  try {
-    await db.init();
-    break;
-  } catch (err) {
-    console.error(`Database not ready (attempt ${attempt}): ${err.message}`);
-    await new Promise((r) => setTimeout(r, Math.min(2000 * attempt, 15000)));
-  }
-}
 server.keepAliveTimeout = 120_000;
 server.headersTimeout = 125_000;
 server.listen(PORT, () => console.log(`Booth bingo listening on :${PORT}`));
+
+(async () => {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await db.init();
+      ready = true;
+      console.log('Database connected; game is live');
+      broadcast();
+      return;
+    } catch (err) {
+      console.error(`Database not ready (attempt ${attempt}): ${err.message}`);
+      await new Promise((r) => setTimeout(r, Math.min(2000 * attempt, 15000)));
+    }
+  }
+})();
+
+// Never let one stray error take the game down mid-event.
+process.on('unhandledRejection', (err) => console.error('Unhandled rejection:', err));
 
 function shutdown() {
   console.log('Shutting down');
