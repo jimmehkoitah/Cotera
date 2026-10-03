@@ -1,0 +1,28 @@
+{
+  "name": "cotera-booth-bingo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Live GTM pain-point bingo for Cotera's booth at Architecting AI-Native GTM (Oct 5, 2026).",
+  "type": "module",
+  "main": "server/index.js",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node --test test/game.test.js test/db.test.js",
+    "test:unit": "node --test test/game.test.js",
+    "simulate": "node test/simulate.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.1"
+  }
+}
