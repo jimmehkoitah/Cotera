@@ -13,12 +13,12 @@
     {
       "set": 1,
       "items": [
-        { "id": "s1-01", "short": "Routing by spreadsheet", "full": "Our lead routing runs on a spreadsheet and a prayer.", "wedge": "W1", "persona": "RevOps" },
+        { "id": "s1-01", "short": "Routing lives in a sheet", "full": "Our lead routing runs on a spreadsheet and a prayer.", "wedge": "W1", "persona": "RevOps" },
         { "id": "s1-02", "short": "SDRs research by hand", "full": "Our SDRs burn hours researching every account before they reach out.", "wedge": "W1", "persona": "SDR/BDR Leader" },
         { "id": "s1-03", "short": "ICP lives on a slide", "full": "Our ICP lives on a slide deck, not in a score anyone actually uses.", "wedge": "W1", "persona": "Marketing Ops" },
         { "id": "s1-04", "short": "Gmail signups ignored", "full": "High-fit buyers sign up with a Gmail address and slip through the cracks.", "wedge": "W1", "persona": "Growth Marketing" },
         { "id": "s1-05", "short": "Enrichment is stale", "full": "Our enrichment data is stale by the time a rep opens the record.", "wedge": "W1", "persona": "Marketing Ops" },
-        { "id": "s1-06", "short": "Buying committee?", "full": "We can't map who's actually on the buying committee.", "wedge": "W1", "persona": "Sales Leader" },
+        { "id": "s1-06", "short": "Buying group, unmapped", "full": "We can't map who's actually on the buying committee.", "wedge": "W1", "persona": "Sales Leader" },
         { "id": "s1-07", "short": "Lead volume, no signal", "full": "We have plenty of leads and no idea which ones matter.", "wedge": "W1", "persona": "Demand Gen" },
         { "id": "s1-08", "short": "Who's in-market now?", "full": "We can't tell which target accounts are actually in-market right now.", "wedge": "W2", "persona": "ABM Lead" },
         { "id": "s1-09", "short": "AI SDR: volume, not fit", "full": "Our AI SDR sends volume, not relevance.", "wedge": "W2", "persona": "SDR/BDR Leader" },

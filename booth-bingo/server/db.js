@@ -83,7 +83,14 @@ export class GameError extends Error {
 }
 
 export function createDb({ connectionString, ssl = false, painPoints }) {
-  const pool = new pg.Pool({ connectionString, ssl, max: 10 });
+  const pool = new pg.Pool({
+    connectionString, ssl, max: 10,
+    connectionTimeoutMillis: 5000,
+    statement_timeout: 5000,
+    idle_in_transaction_session_timeout: 10000,
+  });
+  // A dropped idle connection must not crash the process.
+  pool.on('error', (err) => console.error('Postgres pool error:', err.message));
   const sets = painPoints.sets.map((s) => s.items);
   const wedgeNames = painPoints.wedges;
 
@@ -197,7 +204,8 @@ export function createDb({ connectionString, ssl = false, painPoints }) {
 
       let kit = null;
       if (decision.kit) {
-        const code = redemptionCode();
+        let code = redemptionCode();
+        for (let i = 0; i < 10 && (await client.query('SELECT 1 FROM kits WHERE code = $1', [code])).rowCount; i++) code = redemptionCode();
         await client.query('INSERT INTO kits (player_id, claim_id, reason, code) VALUES ($1, $2, $3, $4)',
           [player.id, c.id, decision.kit, code]);
         if (decision.kit === 'line_win') {

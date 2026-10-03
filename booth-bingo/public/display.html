@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GTM Pain Bingo · Live board</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/display.css">
+</head>
+<body class="display">
+  <div class="stage">
+    <section class="board-panel">
+      <div class="heads" aria-hidden="true"><span>B</span><span>I</span><span>N</span><span>G</span><span>O</span></div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <aside class="side">
+      <div class="brand"><span class="wordmark">Cotera</span><span class="title">GTM Pain Bingo</span></div>
+      <h1>Claim the GTM pain you actually have.</h1>
+
+      <div class="counter">
+        <div class="count"><span id="claimed">0</span><span class="of">/ 25 claimed</span></div>
+        <div class="bar"><div class="fill" id="fill"></div></div>
+        <div class="board-no" id="boardNo">Board 1</div>
+      </div>
+
+      <div class="lines">
+        <div class="lines-title">Closest to bingo</div>
+        <ol id="lines"></ol>
+      </div>
+
+      <div class="join">
+        <img class="qr" src="/qr.svg" alt="QR code to join the game">
+        <div class="join-text">
+          <div class="scan">Scan to play</div>
+          <div class="url" id="url"></div>
+          <div class="prize">Win a <strong>Coco by Cotera</strong> hot chocolate kit</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="celebrate" id="celebrate" hidden>
+    <div class="burst">
+      <div class="big" id="celebrateText"></div>
+      <div class="small" id="celebrateSub"></div>
+    </div>
+  </div>
+  <div class="state-banner" id="stateBanner" hidden></div>
+  <div class="conn" id="conn" hidden>Reconnecting…</div>
+
+  <script src="/socket.io/socket.io.min.js"></script>
+  <script src="/confetti.js"></script>
+  <script src="/display.js"></script>
+</body>
+</html>

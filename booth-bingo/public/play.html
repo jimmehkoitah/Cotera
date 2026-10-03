@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2b1a12">
+  <title>GTM Pain Bingo · Cotera</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body class="play">
+  <header class="topbar">
+    <div class="brand"><span class="wordmark">Cotera</span><span class="title">GTM Pain Bingo</span></div>
+    <div class="live" id="live"><span class="dot"></span><span id="liveText">Connecting</span></div>
+  </header>
+
+  <main>
+    <section id="screen-loading"><p class="note">Loading the board…</p></section>
+
+    <section id="screen-register" hidden>
+      <h1>Claim the GTM pain you actually have.</h1>
+      <p class="lede">Tap a square, tell Jim about it, and you could win a <strong>Coco by Cotera</strong> hot chocolate kit.</p>
+      <form id="regForm" novalidate>
+        <label>Your name
+          <input name="name" autocomplete="name" maxlength="60" required>
+        </label>
+        <label>Company
+          <input name="company" autocomplete="organization" maxlength="80" required>
+        </label>
+        <fieldset class="contact">
+          <legend>Best way to reach you</legend>
+          <div class="seg" role="tablist" id="contactTabs">
+            <button type="button" role="tab" data-type="linkedin" aria-selected="true">LinkedIn</button>
+            <button type="button" role="tab" data-type="phone" aria-selected="false">Phone</button>
+            <button type="button" role="tab" data-type="email" aria-selected="false">Work email</button>
+          </div>
+          <input id="contactValue" name="contactValue" maxlength="200" autocapitalize="none" autocorrect="off" spellcheck="false">
+          <p class="hint" id="contactHint"></p>
+        </fieldset>
+        <p class="error" id="regError" role="alert" hidden></p>
+        <button class="btn primary" type="submit" id="regBtn">Let's play</button>
+        <p class="fine">By playing, you agree Cotera may follow up about what you claim.
+          <a href="https://cotera.co/legal/privacy" target="_blank" rel="noopener">Privacy policy</a></p>
+      </form>
+    </section>
+
+    <section id="screen-board" hidden>
+      <div class="status"><span id="hello"></span><span id="boardInfo"></span></div>
+      <div class="banner" id="banner"></div>
+      <button class="btn kit" id="myKitBtn" type="button" hidden>Show my Coco kit code</button>
+      <div class="board">
+        <div class="col-heads" aria-hidden="true"><span>B</span><span>I</span><span>N</span><span>G</span><span>O</span></div>
+        <div class="grid" id="grid" role="grid" aria-label="Bingo board"></div>
+      </div>
+      <p class="hot" id="hot"></p>
+      <details class="how">
+        <summary>How it works</summary>
+        <ol>
+          <li>Tap the pain point that's most real for you, then claim it.</li>
+          <li>Find Jim at the Cotera table and tell him the story behind it.</li>
+          <li>The first five players win a Coco by Cotera kit. After that, completing a row, column, or diagonal can win one.</li>
+          <li>One square at a time. You can claim another after a short wait.</li>
+          <li>When all 25 are claimed, a fresh board appears.</li>
+        </ol>
+      </details>
+    </section>
+  </main>
+
+  <div class="sheet-backdrop" id="backdrop" hidden></div>
+  <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Square details" hidden></section>
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script src="/socket.io/socket.io.min.js"></script>
+  <script src="/confetti.js"></script>
+  <script src="/play.js"></script>
+</body>
+</html>

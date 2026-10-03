@@ -1,0 +1,27 @@
+# Render Blueprint for the booth app (alternative to creating the services by hand).
+services:
+  - type: web
+    name: cotera-bingo
+    runtime: node
+    plan: starter
+    region: oregon
+    rootDir: booth-bingo
+    buildCommand: npm ci --omit=dev
+    startCommand: node server/index.js
+    healthCheckPath: /healthz
+    autoDeploy: false
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: ADMIN_PIN
+        sync: false
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cotera-bingo-db
+          property: connectionString
+databases:
+  - name: cotera-bingo-db
+    plan: basic-256mb
+    region: oregon

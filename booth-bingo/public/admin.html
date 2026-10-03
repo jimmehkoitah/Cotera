@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#2b1a12">
+  <title>Booth Bingo · Admin</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body class="admin">
+  <header class="topbar">
+    <div class="brand"><span class="wordmark">Cotera</span><span class="title">Booth Bingo admin</span></div>
+    <div class="live" id="live"><span class="dot"></span><span id="liveText">Connecting</span></div>
+  </header>
+
+  <main>
+    <section id="login" class="login card" hidden>
+      <h1>Admin</h1>
+      <form id="loginForm">
+        <label>PIN<input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required></label>
+        <p class="error" id="loginError" hidden></p>
+        <button class="btn primary" type="submit">Open admin</button>
+      </form>
+    </section>
+
+    <section id="dash" hidden>
+      <div class="row-actions">
+        <a class="btn" href="/display" target="_blank" rel="noopener">Open TV display</a>
+        <a class="btn" href="/print" target="_blank" rel="noopener">Print QR card</a>
+        <a class="btn dark" href="/api/admin/export.csv" id="csvLink">Download CSV</a>
+        <button class="btn ghost" type="button" id="logout">Log out</button>
+      </div>
+
+      <h2>Right now</h2>
+      <div class="stats" id="stats"></div>
+
+      <h2>Kits to hand over</h2>
+      <div class="card kits" id="kits"></div>
+
+      <h2>Controls</h2>
+      <div class="card controls">
+        <div class="control"><span>Cooldown (minutes)</span><span class="row-actions"><input id="cooldown" type="number" min="0" max="120" inputmode="numeric"><button class="btn" type="button" id="saveCooldown">Save</button></span></div>
+        <div class="control"><span>Line kits per board</span><span class="row-actions"><input id="cap" type="number" min="0" max="12" inputmode="numeric"><button class="btn" type="button" id="saveCap">Save</button></span></div>
+        <div class="control"><span id="pauseLabel">Claiming is open</span><button class="btn" type="button" id="pause">Pause</button></div>
+        <div class="control"><span id="endLabel">Game is running</span><button class="btn" type="button" id="end">End game</button></div>
+        <div class="control"><span>Board stuck or stale?</span><button class="btn" type="button" id="skip">Skip to next set</button></div>
+        <div class="control"><span>Clear all test data</span><button class="btn danger" type="button" id="wipe">Start fresh…</button></div>
+      </div>
+
+      <h2>Live feed</h2>
+      <div class="feed" id="feed"></div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script src="/socket.io/socket.io.min.js"></script>
+  <script src="/admin.js"></script>
+</body>
+</html>
