@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs the built Worker on Render with Cloudflare's local runtime (workerd) and
+# Runs the built Worker on Render with Cloudflare's runtime (workerd, via Miniflare) and
 # a SQLite-backed D1 database, so the game code and storage stay unchanged.
 # Build first with: npm ci && npm run build
 set -euo pipefail
@@ -31,13 +31,8 @@ export CLOUDFLARE_CF_FETCH_ENABLED=false WRANGLER_SEND_METRICS=false
 WRANGLER="node node_modules/wrangler/bin/wrangler.js"
 CONFIG=dist/server/wrangler.json
 
-# Secrets reach the Worker through .dev.vars next to the generated config.
-umask 077
-printf 'ADMIN_PIN=%s\nADMIN_SECRET=%s\n' "$ADMIN_PIN" "$ADMIN_SECRET" > dist/server/.dev.vars
-
 $WRANGLER d1 execute DB --local --persist-to "$STATE" --config "$CONFIG" --file scripts/render-schema.sql
 
-exec $WRANGLER dev --config "$CONFIG" --local --persist-to "$STATE" \
-  --ip 0.0.0.0 --port "${PORT:-10000}" --inspector-port 0 \
-  --show-interactive-dev-session=false --log-level warn \
-  --local-upstream "$PUBLIC_HOST" --upstream-protocol https
+# Not `wrangler dev`: its DevTools proxy buffers every request's inspector events in memory.
+export STATE_DIR="$STATE" PUBLIC_HOSTNAME="$PUBLIC_HOST"
+exec node scripts/render-serve.mjs
