@@ -39,5 +39,5 @@ $WRANGLER d1 execute DB --local --persist-to "$STATE" --config "$CONFIG" --file 
 
 exec $WRANGLER dev --config "$CONFIG" --local --persist-to "$STATE" \
   --ip 0.0.0.0 --port "${PORT:-10000}" --inspector-port 0 \
-  --show-interactive-dev-session=false \
+  --show-interactive-dev-session=false --log-level warn \
   --local-upstream "$PUBLIC_HOST" --upstream-protocol https

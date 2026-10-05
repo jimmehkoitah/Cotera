@@ -11,7 +11,14 @@ export function makeRound(no,now){
  const calls=[];for(let pass=0;pass<3;pass++)for(const role of shuffle(activePersonas))calls.push({role:role.id,pain:chosen[role.id][pass]});
  return {id:uid(),no,startedAt:now,cards,calls};
 }
-export function advanceRoom(s,now=Date.now()){if(s.round){s.history.push(s.round);if(s.history.length>65)s.history.shift();}s.round=makeRound((s.round?.no||0)+1,now);s.settings.paused=false;s.settings.pausedAt=null;s.settings.ended=false;s.settings.nextRoundAt=null;s.settings.announcement='';}
+// Finished rounds leave the live state: their matches go to s.archive, which the API moves into the
+// match_log table, and only the last few wins stay for the main screen. D1 caps one value near 2 MB.
+function archiveFinished(s){
+ const current=s.round?.id,old=s.matches.filter(m=>m.round!==current);
+ if(old.length){const counts=new Map();for(const m of old)counts.set(m.player,(counts.get(m.player)||0)+1);for(const p of s.players)if(counts.has(p.id))p.pastMatches=(p.pastMatches||0)+counts.get(p.id);s.archive=[...(s.archive||[]),...old.map(({request,...m})=>m)];s.matches=s.matches.filter(m=>m.round===current);}
+ const oldWins=s.wins.filter(w=>w.round!==current),keep=oldWins.slice(-5);s.pastWins=(s.pastWins||0)+oldWins.length-keep.length;s.wins=[...keep,...s.wins.filter(w=>w.round===current)];
+}
+export function advanceRoom(s,now=Date.now()){if(s.round){s.history.push(s.round);while(s.history.length>2)s.history.shift();}s.round=makeRound((s.round?.no||0)+1,now);archiveFinished(s);s.settings.paused=false;s.settings.pausedAt=null;s.settings.ended=false;s.settings.nextRoundAt=null;s.settings.announcement='';}
 export function roomDue(s,now=Date.now()){return !s.settings.ended&&((s.settings.nextRoundAt&&now>=s.settings.nextRoundAt)||(!s.settings.paused&&s.round&&now>=s.round.startedAt+ROUND_MS));}
 export function tickRoom(s,now=Date.now()){
  if(s.settings.ended)return;
@@ -69,13 +76,13 @@ export function roomSnapshot(s,token,now=Date.now()){
  const p=s.players.find(p=>p.token===token),calls=calledFor(s,now),last=calls.at(-1),round=s.round,completed=p&&s.experiences.find(e=>e.id===p.directComplete),kit=p&&s.kits.find(k=>k.player===p.id&&!k.revoked);
  const matches=p?s.matches.filter(m=>m.player===p.id&&m.round===round?.id&&m.role===p.role):[];
  const wins=p?s.wins.filter(w=>w.player===p.id):[];
- return {version:s.version,serverTime:now,settings:s.settings,stockAvailable:available(s),community:{players:s.players.length,wins:s.wins.length,experiences:s.experiences.length},
+ return {version:s.version,serverTime:now,settings:s.settings,stockAvailable:available(s),community:{players:s.players.length,wins:s.wins.length+(s.pastWins||0),experiences:s.experiences.length},
   round:round?{id:round.id,no:round.no,startedAt:round.startedAt,endsAt:round.startedAt+ROUND_MS,nextCallAt:round.startedAt+calls.length*CALL_MS,totalCalls:round.calls.length,calledCount:calls.length,current:last?{role:last.role,roleLabel:getPersona(last.role).label,pain:publicPain(last.pain)}:null,recent:calls.slice(-6).reverse().map(c=>({role:c.role,roleLabel:getPersona(c.role).label,pain:publicPain(c.pain)}))}:null,
   recentWins:s.wins.slice(-5).reverse().map(w=>({id:w.id,role:getPersona(w.role).label,roundNo:w.roundNo,at:w.at})),callouts:s.notes.filter(n=>n.status==='approved').slice(-6).map(n=>({id:n.id,text:n.text})),
   me:p?{name:p.name,role:isActivePersona(p.role)?p.role:null,path:p.path,card:round&&p.role&&round.cards[p.role]?round.cards[p.role].map(sq=>({...publicPain(sq),called:calls.some(c=>c.role===p.role&&c.pain.id===sq.id),matched:matches.some(m=>m.pain.id===sq.id)})):[],matches:matches.length,wins:wins.map(w=>({id:w.id,roundNo:w.roundNo,round:w.round,at:w.at,reward:w.reward})),kit:kit?{code:kit.code,handed:kit.handed,reason:kit.reason}:null,completed:completed?{pains:completed.pains.map(publicPain),reward:completed.reward}:null,notes:s.notes.filter(n=>n.player===p.id).map(({id,text,status})=>({id,text,status}))}:null};
 }
 export function roomAdmin(s,now=Date.now()){
- return {...roomSnapshot(s,undefined,now),attendees:s.players.map(p=>({id:p.id,name:p.name,company:p.company,role:getPersona(p.role)?.label||'Choosing a role',path:p.path,contact:p.contact,type:p.type,joined:p.joined,matches:s.matches.filter(m=>m.player===p.id).length,reported:s.experiences.filter(e=>e.player===p.id).flatMap(e=>e.pains.map(publicPain))})),kits:s.kits.filter(k=>!k.revoked).map(k=>({...k,name:s.players.find(p=>p.id===k.player)?.name,company:s.players.find(p=>p.id===k.player)?.company})),notes:s.notes.map(n=>({...n,name:s.players.find(p=>p.id===n.player)?.name,company:s.players.find(p=>p.id===n.player)?.company}))};
+ return {...roomSnapshot(s,undefined,now),attendees:s.players.map(p=>({id:p.id,name:p.name,company:p.company,role:getPersona(p.role)?.label||'Choosing a role',path:p.path,contact:p.contact,type:p.type,joined:p.joined,matches:s.matches.filter(m=>m.player===p.id).length+(p.pastMatches||0),reported:s.experiences.filter(e=>e.player===p.id).flatMap(e=>e.pains.map(publicPain))})),kits:s.kits.filter(k=>!k.revoked).map(k=>({...k,name:s.players.find(p=>p.id===k.player)?.name,company:s.players.find(p=>p.id===k.player)?.company})),notes:s.notes.map(n=>({...n,name:s.players.find(p=>p.id===n.player)?.name,company:s.players.find(p=>p.id===n.player)?.company}))};
 }
 export function roomAdminAction(s,input,now=Date.now()){
  const q=s.settings;
@@ -93,11 +100,11 @@ export function roomAdminAction(s,input,now=Date.now()){
   default:fail('Unknown action.');
  }
 }
-export function roomCsv(s){
+export function roomCsv(s,archived=[]){
  const rows=[['Entry type','Timestamp (UTC)','Name','Company','Contact type','Contact','Selected role','Round','Problem','Full problem','Prize code','Kit handed over','Consent timestamp']];
  const row=(p,type,time,role,round='',pain=null)=>{const k=s.kits.find(k=>k.player===p.id&&!k.revoked);return [type,new Date(time).toISOString(),p.name,p.company,p.type,p.contact,getPersona(role)?.label||'',round,pain?.short||'',pain?.full||'',k?.code||'',k?.handed?'Y':'N',p.consentAt];};
  for(const p of s.players)rows.push(row(p,'registration',p.joined,p.role));
- for(const m of s.matches)rows.push(row(s.players.find(p=>p.id===m.player),'bingo match — not a reported problem',m.at,m.role,m.roundNo,m.pain));
+ for(const m of [...archived,...(s.archive||[]),...s.matches])rows.push(row(s.players.find(p=>p.id===m.player),'bingo match — not a reported problem',m.at,m.role,m.roundNo,m.pain));
  for(const e of s.experiences)for(const pain of e.pains)rows.push(row(s.players.find(p=>p.id===e.player),'reported problem',e.at,e.role,'',pain));
  for(const n of s.notes)rows.push(row(s.players.find(p=>p.id===n.player),'written note: '+n.status,n.at,s.players.find(p=>p.id===n.player).role,'',{full:n.text}));
  return '\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v).replace(/^[=+@\-\t\r]/,"'$&").replaceAll('"','""')+'"').join(',')).join('\r\n');

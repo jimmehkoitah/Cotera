@@ -9,3 +9,9 @@ CREATE TABLE IF NOT EXISTS `games` (
 	`version` integer NOT NULL,
 	`data` text NOT NULL
 );
+-- Matches from finished rounds, one row per round, so the live game row stays small.
+CREATE TABLE IF NOT EXISTS `match_log` (
+	`id` text PRIMARY KEY NOT NULL,
+	`mode` text NOT NULL,
+	`data` text NOT NULL
+);
