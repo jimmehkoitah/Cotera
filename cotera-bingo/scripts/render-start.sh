@@ -33,6 +33,16 @@ CONFIG=dist/server/wrangler.json
 
 $WRANGLER d1 execute DB --local --persist-to "$STATE" --config "$CONFIG" --file scripts/render-schema.sql
 
+# One-time wipe of event-mode records (players, rounds, prizes, notes) after a pre-event test.
+# Runs once per new RESET_EVENT value; the marker on disk stops later restarts from wiping again.
+# Practice records are untouched.
+if [ -n "${RESET_EVENT:-}" ] && [ "$(cat "$STATE/.reset-event" 2>/dev/null)" != "$RESET_EVENT" ]; then
+  $WRANGLER d1 execute DB --local --persist-to "$STATE" --config "$CONFIG" --command "DELETE FROM games WHERE id = 'hosted:event'"
+  $WRANGLER d1 execute DB --local --persist-to "$STATE" --config "$CONFIG" --command "DELETE FROM match_log WHERE mode = 'event'"
+  printf '%s' "$RESET_EVENT" > "$STATE/.reset-event"
+  echo "Event records reset ($RESET_EVENT)."
+fi
+
 # Not `wrangler dev`: its DevTools proxy buffers every request's inspector events in memory.
 export STATE_DIR="$STATE" PUBLIC_HOSTNAME="$PUBLIC_HOST"
 exec node scripts/render-serve.mjs
