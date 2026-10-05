@@ -336,6 +336,10 @@ export const personas=[
     ]
   }
 ];
+// Roles offered at this GTM event. The full list stays for existing records and legacy code.
+export const activePersonaIds=['sales','marketing','customers','revops','market','technology'];
+export const activePersonas=personas.filter(p=>activePersonaIds.includes(p.id));
+export function isActivePersona(id){return activePersonaIds.includes(id);}
 export const roleMappingNotes={
   "sales": "W1 account selection and qualification; W2 for named-account engagement. Senior revenue leaders should choose the work they are discussing.",
   "marketing": "W2 by default; W1 when inbound matching, qualification or routing is the problem.",

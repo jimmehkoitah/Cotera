@@ -1,14 +1,14 @@
-import {personas, getPersona, personaPains, sharedAIIds} from './personas.mjs';
+import {activePersonas, isActivePersona, getPersona, personaPains, sharedAIIds} from './personas.mjs';
 import {normalize, fail} from './game.mjs';
-export const ROUND_MS=180000, CALL_MS=7000, TARGET=3;
+export const ROUND_MS=300000, CALL_MS=12000, TARGET=3;
 const uid=()=>crypto.randomUUID();
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 const publicPain=p=>({id:p.id,short:p.short,full:p.full});
 export function initialRoom(){return {schema:1,version:0,players:[],round:null,history:[],matches:[],experiences:[],wins:[],kits:[],notes:[],settings:{paused:false,pausedAt:null,ended:false,kitLimit:null,nextRoundAt:null,announcement:''}};}
 export function makeRound(no,now){
  const cards={},chosen={};
- for(const role of personas){const pool=personaPains(role.id);cards[role.id]=shuffle([...shuffle(pool.filter(p=>!sharedAIIds.includes(p.id))).slice(0,5),shuffle(pool.filter(p=>sharedAIIds.includes(p.id)))[0]]);chosen[role.id]=shuffle(cards[role.id]).slice(0,3);}
- const calls=[];for(let pass=0;pass<3;pass++)for(const role of shuffle(personas))calls.push({role:role.id,pain:chosen[role.id][pass]});
+ for(const role of activePersonas){const pool=personaPains(role.id);cards[role.id]=shuffle([...shuffle(pool.filter(p=>!sharedAIIds.includes(p.id))).slice(0,5),shuffle(pool.filter(p=>sharedAIIds.includes(p.id)))[0]]);chosen[role.id]=shuffle(cards[role.id]).slice(0,3);}
+ const calls=[];for(let pass=0;pass<3;pass++)for(const role of shuffle(activePersonas))calls.push({role:role.id,pain:chosen[role.id][pass]});
  return {id:uid(),no,startedAt:now,cards,calls};
 }
 export function advanceRoom(s,now=Date.now()){if(s.round){s.history.push(s.round);if(s.history.length>65)s.history.shift();}s.round=makeRound((s.round?.no||0)+1,now);s.settings.paused=false;s.settings.pausedAt=null;s.settings.ended=false;s.settings.nextRoundAt=null;s.settings.announcement='';}
@@ -36,7 +36,7 @@ export function joinRoom(s,input,token,now=Date.now()){
  const existing=s.players.find(p=>p.norm===norm);if(existing){if(existing.token!==token)fail('This contact has already joined. Open the original browser, or ask Jim for help.',409);return existing;}
  const p={id:uid(),token:uid(),name:input.name.trim(),company:input.company.trim(),type:input.type,contact:input.contact.trim(),norm,path:input.path,role:null,joined:now,consentAt:new Date(now).toISOString(),directComplete:null};s.players.push(p);return p;
 }
-export function selectRoomRole(s,token,role,now=Date.now()) {open(s);const p=player(s,token);if(!getPersona(role))fail('Choose one of the listed roles.');p.role=role;if(p.path==='bingo'&&!s.round&&!s.settings.paused)advanceRoom(s,now+10000);return p;}
+export function selectRoomRole(s,token,role,now=Date.now()) {open(s);const p=player(s,token);if(!isActivePersona(role))fail('Choose one of the listed roles.');p.role=role;if(p.path==='bingo'&&!s.round&&!s.settings.paused)advanceRoom(s,now+10000);return p;}
 export function selectRoomPath(s,token,path,now=Date.now()){open(s);const p=player(s,token);if(!['bingo','direct'].includes(path))fail('Choose a way to play.');p.path=path;if(path==='bingo'&&p.role&&!s.round&&!s.settings.paused)advanceRoom(s,now+10000);}
 export function calledFor(s,now=Date.now()){
  if(!s.round)return [];
@@ -47,7 +47,7 @@ export function matchCall(s,token,input,now=Date.now()){
  const p=player(s,token);requestId(input.request);const prior=s.matches.find(m=>m.player===p.id&&m.request===input.request);if(prior)return prior;
  open(s);if(s.settings.paused)fail('Bingo is paused. Your progress is saved.');if(p.path!=='bingo'||!p.role)fail('Choose your role and Play Bingo first.');
  if(input.round!==s.round?.id)fail('A fresh round has started. Your new card is ready.',409);
- const sq=s.round.cards[p.role].find(x=>x.id===input.pain);if(!sq)fail('Choose a problem on your card.');
+ const sq=(s.round.cards[p.role]||[]).find(x=>x.id===input.pain);if(!sq)fail('Choose a problem on your card.');
  if(!calledFor(s,now).some(c=>c.role===p.role&&c.pain.id===sq.id))fail('This problem has not been called yet.');
  if(s.matches.some(m=>m.player===p.id&&m.round===s.round.id&&m.pain.id===sq.id))fail('You already matched this problem.',409);
  const m={id:uid(),request:input.request,player:p.id,round:s.round.id,roundNo:s.round.no,role:p.role,pain:{...sq},at:now};s.matches.push(m);
@@ -72,7 +72,7 @@ export function roomSnapshot(s,token,now=Date.now()){
  return {version:s.version,serverTime:now,settings:s.settings,stockAvailable:available(s),community:{players:s.players.length,wins:s.wins.length,experiences:s.experiences.length},
   round:round?{id:round.id,no:round.no,startedAt:round.startedAt,endsAt:round.startedAt+ROUND_MS,nextCallAt:round.startedAt+calls.length*CALL_MS,totalCalls:round.calls.length,calledCount:calls.length,current:last?{role:last.role,roleLabel:getPersona(last.role).label,pain:publicPain(last.pain)}:null,recent:calls.slice(-6).reverse().map(c=>({role:c.role,roleLabel:getPersona(c.role).label,pain:publicPain(c.pain)}))}:null,
   recentWins:s.wins.slice(-5).reverse().map(w=>({id:w.id,role:getPersona(w.role).label,roundNo:w.roundNo,at:w.at})),callouts:s.notes.filter(n=>n.status==='approved').slice(-6).map(n=>({id:n.id,text:n.text})),
-  me:p?{name:p.name,role:p.role,path:p.path,card:round&&p.role?round.cards[p.role].map(sq=>({...publicPain(sq),called:calls.some(c=>c.role===p.role&&c.pain.id===sq.id),matched:matches.some(m=>m.pain.id===sq.id)})):[],matches:matches.length,wins:wins.map(w=>({id:w.id,roundNo:w.roundNo,round:w.round,at:w.at,reward:w.reward})),kit:kit?{code:kit.code,handed:kit.handed,reason:kit.reason}:null,completed:completed?{pains:completed.pains.map(publicPain),reward:completed.reward}:null,notes:s.notes.filter(n=>n.player===p.id).map(({id,text,status})=>({id,text,status}))}:null};
+  me:p?{name:p.name,role:isActivePersona(p.role)?p.role:null,path:p.path,card:round&&p.role&&round.cards[p.role]?round.cards[p.role].map(sq=>({...publicPain(sq),called:calls.some(c=>c.role===p.role&&c.pain.id===sq.id),matched:matches.some(m=>m.pain.id===sq.id)})):[],matches:matches.length,wins:wins.map(w=>({id:w.id,roundNo:w.roundNo,round:w.round,at:w.at,reward:w.reward})),kit:kit?{code:kit.code,handed:kit.handed,reason:kit.reason}:null,completed:completed?{pains:completed.pains.map(publicPain),reward:completed.reward}:null,notes:s.notes.filter(n=>n.player===p.id).map(({id,text,status})=>({id,text,status}))}:null};
 }
 export function roomAdmin(s,now=Date.now()){
  return {...roomSnapshot(s,undefined,now),attendees:s.players.map(p=>({id:p.id,name:p.name,company:p.company,role:getPersona(p.role)?.label||'Choosing a role',path:p.path,contact:p.contact,type:p.type,joined:p.joined,matches:s.matches.filter(m=>m.player===p.id).length,reported:s.experiences.filter(e=>e.player===p.id).flatMap(e=>e.pains.map(publicPain))})),kits:s.kits.filter(k=>!k.revoked).map(k=>({...k,name:s.players.find(p=>p.id===k.player)?.name,company:s.players.find(p=>p.id===k.player)?.company})),notes:s.notes.map(n=>({...n,name:s.players.find(p=>p.id===n.player)?.name,company:s.players.find(p=>p.id===n.player)?.company}))};
