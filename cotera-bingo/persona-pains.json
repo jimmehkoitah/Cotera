@@ -1,0 +1,677 @@
+[
+  {
+    "id": "t-01",
+    "short": "Nobody knows who owns the broken automation",
+    "full": "A workflow fails, but nobody knows who is responsible for fixing it.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-02",
+    "short": "The same workflow built in three tools",
+    "full": "Different teams maintain separate automations for the same task.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-03",
+    "short": "AI tools bought before anyone checks access",
+    "full": "A team buys an AI tool before checking which company data it needs to access.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-04",
+    "short": "No record of what the AI changed",
+    "full": "We cannot trace which records an AI workflow edited or why it edited them.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-05",
+    "short": "Old employees still have access to our tools",
+    "full": "People who left the company still have active accounts or permissions.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-06",
+    "short": "New AI tools. No plan to maintain them.",
+    "full": "Teams launch AI workflows without assigning anyone to keep them working.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-07",
+    "short": "Hard to tell which tools are worth keeping",
+    "full": "We pay for overlapping tools without a clear view of who uses them or what they save.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-08",
+    "short": "Failed automations disappear without an alert",
+    "full": "A workflow stops running, but the team does not hear about the failure.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-09",
+    "short": "Two systems disagree on the same record",
+    "full": "We have to investigate which system has the current information before we can act.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-10",
+    "short": "Testing AI changes takes too much manual work",
+    "full": "Every change to an AI workflow needs repeated manual checks before we can trust it.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-11",
+    "short": "An AI retry creates duplicate records",
+    "full": "Retrying a failed AI action adds a second record instead of safely finishing the first.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-12",
+    "short": "No easy way to stop a bad AI action",
+    "full": "When an AI workflow starts making incorrect changes, stopping it takes too long.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-13",
+    "short": "Permissions are different in every tool",
+    "full": "Keeping the right people and workflows connected requires separate access checks in each tool.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-14",
+    "short": "Sensitive data ends up in the wrong AI tool",
+    "full": "People paste private company or customer information into tools that were not approved for it.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-15",
+    "short": "Every AI vendor needs another security review",
+    "full": "Each new AI tool starts another round of questions about data, access and vendor controls.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-16",
+    "short": "No one checks whether the automation still works",
+    "full": "A workflow keeps running after the business process changes, with no owner checking its output.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-17",
+    "short": "Hard to explain where an AI answer came from",
+    "full": "We cannot trace an AI answer back to the source records it used.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-18",
+    "short": "An integration update breaks our field mappings",
+    "full": "After a system update, information lands in the wrong fields or stops syncing.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "t-19",
+    "short": "The AI pilot has no clear measure of success",
+    "full": "We launched a pilot without agreeing how to check whether it actually helps the team.",
+    "topic": "Systems & AI",
+    "persona": "Technology and security",
+    "wedge": "Cross-workflow",
+    "revision": 1
+  },
+  {
+    "id": "u-01",
+    "short": "Support agents start every ticket from scratch",
+    "full": "Agents have to rebuild the customer's history before they can respond to a new ticket.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-02",
+    "short": "Urgent support tickets wait in the wrong queue",
+    "full": "A time-sensitive customer issue gets sent to a team that cannot resolve it.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-03",
+    "short": "Customers chase us for ticket updates",
+    "full": "Customers have to ask for progress because nobody sends an update while their issue is open.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-04",
+    "short": "The same support issue keeps coming back",
+    "full": "We close individual tickets without fixing the problem that keeps creating new ones.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-05",
+    "short": "Support answers depend on who takes the ticket",
+    "full": "Agents give different answers to the same question because their guidance is inconsistent.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-06",
+    "short": "Old help articles keep getting sent to clients",
+    "full": "Support replies link to guidance that no longer matches the product or policy.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-07",
+    "short": "Ticket handoffs lose the troubleshooting history",
+    "full": "The next support team cannot see what has already been tried, so the customer repeats the steps.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-08",
+    "short": "Support managers review tickets one by one",
+    "full": "Checking service quality means manually reading individual tickets with little help finding issues.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-09",
+    "short": "The support backlog hides the biggest problems",
+    "full": "A long ticket queue makes it hard to spot the issues with the greatest customer impact.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-10",
+    "short": "No one owns the next step on an escalation",
+    "full": "An escalated support issue passes between teams without a clear person responsible for moving it forward.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-11",
+    "short": "Customers get different answers in chat and email",
+    "full": "Our support channels use different information when answering the same customer question.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-12",
+    "short": "Hard to tell which tickets need a specialist",
+    "full": "Support agents spend too long deciding whether an issue needs a different team or expert.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-13",
+    "short": "Support quality checks miss repeat mistakes",
+    "full": "Our ticket reviews do not reliably catch the same incorrect advice being sent to more customers.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-14",
+    "short": "Ticket summaries leave out the important detail",
+    "full": "A summary misses the error, customer impact or troubleshooting step the next agent needs.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-15",
+    "short": "Support policies change. Saved replies don't.",
+    "full": "Agents keep sending old saved replies after the relevant policy has changed.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-16",
+    "short": "One client problem becomes five separate tickets",
+    "full": "We treat related tickets as separate issues and miss the full picture of the customer's problem.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "u-17",
+    "short": "Hard to explain why a ticket was prioritized",
+    "full": "The team cannot see what made a ticket more urgent than other work in the queue.",
+    "topic": "Support & service",
+    "persona": "Support and customer experience",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-01",
+    "short": "Case evidence is spread across too many tools",
+    "full": "Reviewers have to move between systems to assemble the records needed for one case.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-02",
+    "short": "Payment reviews pile up in a shared inbox",
+    "full": "Payment cases arrive in an inbox with no reliable way to assign and track the next action.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-03",
+    "short": "Dispute deadlines get buried in the queue",
+    "full": "The team spots a dispute too late to collect and submit the evidence before its deadline.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-04",
+    "short": "Reviewers disagree on the same kind of case",
+    "full": "Similar cases receive different decisions because reviewers interpret the available evidence differently.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-05",
+    "short": "Hard to explain why a transaction was flagged",
+    "full": "A reviewer sees a risk alert without enough detail to understand what triggered it.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-06",
+    "short": "Good customers get stuck in manual review",
+    "full": "Legitimate customers wait too long while the team investigates a flagged transaction or account.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-07",
+    "short": "Rebuilding the case history takes longer than review",
+    "full": "Finding prior decisions and customer records takes more time than assessing the current case.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-08",
+    "short": "Case handoffs lose the reason for escalation",
+    "full": "A reviewer receives an escalated case without a clear explanation of what needs investigation.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-09",
+    "short": "Policy updates never reach the review checklist",
+    "full": "The team keeps using an old checklist after the policy governing its decisions has changed.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-10",
+    "short": "Missing evidence only surfaces at final review",
+    "full": "A case reaches the final reviewer before anyone notices that a required record is missing.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-11",
+    "short": "Too many alerts. Too few useful clues.",
+    "full": "Reviewers receive large numbers of risk alerts that do not explain which evidence deserves attention.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-12",
+    "short": "Dispute evidence gets copied into every form",
+    "full": "The team manually copies the same case records into multiple dispute documents or systems.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-13",
+    "short": "Case notes don't explain the final decision",
+    "full": "The record says what was decided but leaves out the evidence and reasoning behind that decision.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-14",
+    "short": "Closed cases come back with the same questions",
+    "full": "A finished case is reopened because the original review did not answer the questions clearly.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-15",
+    "short": "Payment records don't match across systems",
+    "full": "The team must reconcile conflicting transaction details before it can finish a payment review.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-16",
+    "short": "Review queues hide overdue cases",
+    "full": "Cases pass their review deadline without becoming visible to the person who can resolve them.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-17",
+    "short": "Fraud patterns are spotted one case too late",
+    "full": "The team sees a recurring pattern only after several related cases have already been handled.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-18",
+    "short": "Too much time spent clearing false alarms",
+    "full": "Reviewers repeatedly investigate alerts that turn out to have a straightforward, legitimate explanation.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-19",
+    "short": "Nobody knows who owns the disputed payment",
+    "full": "A payment dispute moves between teams without a clear owner responsible for resolving it.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-20",
+    "short": "Risk reviewers can't find the current policy",
+    "full": "Reviewers spend time searching for the policy version that applies to the case in front of them.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-21",
+    "short": "Case decisions are hard to audit later",
+    "full": "Months after a decision, the team cannot easily reconstruct the records and reasoning used at the time.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-22",
+    "short": "Urgent cases look like every other case",
+    "full": "The queue does not clearly distinguish cases that need immediate attention from routine reviews.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-23",
+    "short": "The case summary leaves out conflicting evidence",
+    "full": "A summary presents one conclusion without showing the records that point to a different interpretation.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-24",
+    "short": "Asking customers twice for the same evidence",
+    "full": "Different reviewers request documents that the customer has already supplied for the same case.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "r-25",
+    "short": "No feedback when a risk alert was wrong",
+    "full": "The people maintaining our review rules do not hear which alerts reviewers found unhelpful or incorrect.",
+    "topic": "Risk & case review",
+    "persona": "Risk, fraud and payments operations",
+    "wedge": "W5",
+    "revision": 1
+  },
+  {
+    "id": "m-01",
+    "short": "Client news gets noticed after the opportunity passes",
+    "full": "We hear about a meaningful change at a client too late to start a useful conversation.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-02",
+    "short": "Executive moves get lost in the news feed",
+    "full": "A key person changes jobs, but nobody connects the move to our client relationships.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-03",
+    "short": "Market alerts arrive without a next step",
+    "full": "The team receives a relevant update without knowing who should act or what to do next.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-04",
+    "short": "Every partner keeps a separate client watchlist",
+    "full": "People track the same clients independently, so useful changes and follow-ups stay scattered.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-05",
+    "short": "No clear owner for following up on client news",
+    "full": "A meaningful client update is shared around the team, but nobody owns the response.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-06",
+    "short": "Relationship history is buried in old emails",
+    "full": "Before contacting a client or prospect, we struggle to find the history of who knows whom.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-07",
+    "short": "Finding the real source behind a market claim",
+    "full": "Research gets repeated without a reliable way to check where the original claim came from.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-08",
+    "short": "Weekly market briefs take days to assemble",
+    "full": "The team spends too long collecting and checking sources before it can discuss the implications.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-09",
+    "short": "Important client changes disappear in long reports",
+    "full": "A useful change is buried in a report that the relationship owner does not have time to read.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-10",
+    "short": "Research gets shared but never changes the plan",
+    "full": "The team collects market insight without connecting it to an account, message or strategic decision.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-11",
+    "short": "Industry news isn't linked to the clients it affects",
+    "full": "We spot a market change but do not identify which clients might need a conversation about it.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-12",
+    "short": "Warm introductions depend on someone's memory",
+    "full": "We miss useful introductions because relationship connections are not easy to find or verify.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-13",
+    "short": "Client priorities changed. Our brief didn't.",
+    "full": "We enter a client conversation using research that no longer reflects the client's situation.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  },
+  {
+    "id": "m-14",
+    "short": "Market summaries leave out the supporting evidence",
+    "full": "A research summary makes a claim without the source or context needed to judge whether it is useful.",
+    "topic": "Market & relationship intelligence",
+    "persona": "Strategy / Advisory / Product marketing",
+    "wedge": "W4",
+    "revision": 1
+  }
+]

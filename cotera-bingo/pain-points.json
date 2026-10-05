@@ -1,0 +1,910 @@
+[
+  [
+    {
+      "id": "s1-01",
+      "short": "Too many dupes in the CRM",
+      "full": "The same person or company has several records, so activity gets split and work gets repeated.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s1-02",
+      "short": "Need better contact data",
+      "full": "Missing or wrong emails, phone numbers, and job titles make it hard to reach the right people.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s1-03",
+      "short": "Still guessing which accounts to target",
+      "full": "There's no reliable way to tell which companies actually need what we sell.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s1-04",
+      "short": "Too much tab switching for account research",
+      "full": "Researching one company means jumping between its website, LinkedIn, the CRM, and other tools.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s1-05",
+      "short": "New leads keep landing with the wrong rep",
+      "full": "Incoming leads get assigned to people who don't cover that company, region, or type of customer.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s1-06",
+      "short": "Missing contacts on the buying team",
+      "full": "We know one person at the account, but we're missing others involved in choosing a product.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s1-07",
+      "short": "A lead score nobody can explain",
+      "full": "Leads get ranked, but nobody can tell us what makes one worth pursuing over another.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s1-08",
+      "short": "Intent isn't intenting",
+      "full": "The data says an account is interested, but that interest doesn't turn into a real buying conversation.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s1-09",
+      "short": "Gotta be quicker with inbound leads",
+      "full": "People ask about our product, but we take too long to get back to them.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s1-10",
+      "short": "Nobody wants to cold call",
+      "full": "Calling someone who hasn't asked to hear from us is the task everyone keeps putting off.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s1-11",
+      "short": "Event leads go cold before we follow up",
+      "full": "By the time we email someone we met at an event, the conversation is no longer fresh.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s1-12",
+      "short": "Sales emails that could be for anyone",
+      "full": "Adding a first name doesn't make the rest of the email relevant to that person's business.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s1-13",
+      "short": "Great demo. Then we get ghosted.",
+      "full": "The demo seems to go well, but the buyer stops replying and there's no agreed next step.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s1-14",
+      "short": "Our main client contact left. Now what?",
+      "full": "Our main contact leaves the company, and we don't know who can keep the relationship going.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s1-15",
+      "short": "Catching churn signals too late",
+      "full": "We notice the warning signs only after a client has started planning to leave.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s1-16",
+      "short": "Bad timing on cross-team expansion opportunities",
+      "full": "Another team at an existing client could use our product, but we reach them too early or too late.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s1-17",
+      "short": "Our reports don't show all unhappy clients",
+      "full": "The customer report looks healthy even when some clients are frustrated or thinking about leaving.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s1-18",
+      "short": "Sales promises get lost in the handoff",
+      "full": "The team looking after a new client doesn't know what sales promised before the deal was signed.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s1-19",
+      "short": "Paid seats nobody is using",
+      "full": "Clients pay for product access that sits unused, making the next renewal harder to justify.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s1-20",
+      "short": "Client notes are spread across too many systems",
+      "full": "Understanding one client's history means searching the CRM, call notes, support tools, and chat.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s1-21",
+      "short": "Hearing about competitor launches from clients",
+      "full": "A client asks about a competitor's new product or feature before our own team has heard about it.",
+      "wedge": "W4",
+      "persona": "Product Marketing",
+      "revision": 5,
+      "topic": "Keeping up with the market"
+    },
+    {
+      "id": "s1-22",
+      "short": "Our competitor notes are already out of date",
+      "full": "The comparison sheet still describes an old version of the other product.",
+      "wedge": "W4",
+      "persona": "Product Marketing",
+      "revision": 5,
+      "topic": "Keeping up with the market"
+    },
+    {
+      "id": "s1-23",
+      "short": "Hard to check what the AI is doing",
+      "full": "We can't easily see the steps an AI tool is taking or the actions it has already carried out.",
+      "wedge": "Cross-workflow",
+      "persona": "Across roles",
+      "revision": 6,
+      "topic": "Everyday work"
+    },
+    {
+      "id": "s1-24",
+      "short": "The AI demo works. The real workflow doesn't.",
+      "full": "The demo handles a neat example but fails when real work brings exceptions and messy data.",
+      "wedge": "Cross-workflow",
+      "persona": "Across roles",
+      "revision": 6,
+      "topic": "Everyday work"
+    },
+    {
+      "id": "s1-25",
+      "short": "Why did our AI bill jump?",
+      "full": "Usage costs change without a clear warning or explanation of what drove the increase.",
+      "wedge": "Cross-workflow",
+      "persona": "Across roles",
+      "revision": 6,
+      "topic": "Everyday work"
+    }
+  ],
+  [
+    {
+      "id": "s2-01",
+      "short": "Wrong job titles in the contact list",
+      "full": "The list says someone has the role we need, but their actual job is different.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s2-02",
+      "short": "The same account assigned to two reps",
+      "full": "Two reps are responsible for the same account, and neither knows who should take the lead.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s2-03",
+      "short": "Cold emails keep bouncing",
+      "full": "The email addresses on our prospect list don't work, so messages never reach the intended people.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s2-04",
+      "short": "Right company. Wrong department.",
+      "full": "A company could use our product, but we keep reaching a team that has no reason to buy it.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s2-05",
+      "short": "Inbound leads that were never a fit",
+      "full": "Sales spends time qualifying incoming leads whose needs, company size, or budget never matched our product.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s2-06",
+      "short": "Building account lists by hand",
+      "full": "Finding companies and collecting their details takes hours of manual research and spreadsheet work.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s2-07",
+      "short": "Old leads never get a second look",
+      "full": "Someone who wasn't ready before may be ready now, but we never revisit the old conversation.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s2-08",
+      "short": "Intent alerts with no clue what triggered them",
+      "full": "We get an alert that an account is interested without enough detail to understand why.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s2-09",
+      "short": "Our outreach arrives after the buying decision",
+      "full": "We contact an account only to learn they've already chosen another product.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s2-10",
+      "short": "Booked demos. Empty meeting rooms.",
+      "full": "People book time to see the product, then don't show up for the call.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s2-11",
+      "short": "Interested replies stuck in a shared inbox",
+      "full": "Positive replies arrive, but nobody takes responsibility for answering them.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s2-12",
+      "short": "Writing one good sales email takes forever",
+      "full": "Turning research into a message that matters to one prospect takes more time than we have.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s2-13",
+      "short": "Still emailing people who already said no",
+      "full": "Automated follow-ups keep going after a person has clearly declined.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s2-14",
+      "short": "Renewals sneak up on us",
+      "full": "We discover a contract is ending before we've had time to discuss the renewal with the client.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s2-15",
+      "short": "Expansion leads get lost between sales and CS",
+      "full": "Someone spots a chance to sell more to a client, but sales and customer success never agree who acts.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s2-16",
+      "short": "New clients get stuck during setup",
+      "full": "A new customer can't finish getting started, and the blocker goes unnoticed or unresolved.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s2-17",
+      "short": "Support tickets never reach the account team",
+      "full": "The people managing a client relationship don't hear about the problems that client reports to support.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s2-18",
+      "short": "Hard to prove our product is worth the money",
+      "full": "When a client asks what they've gained, we struggle to show a clear result from using the product.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s2-19",
+      "short": "Client history lives in one person's head",
+      "full": "If the account owner is unavailable, the rest of the team can't pick up where they left off.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s2-20",
+      "short": "Clients repeat the same problem to every team",
+      "full": "Support, sales, and customer success each ask the client to explain an issue they've already described.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s2-21",
+      "short": "Competitor pricing changes catch us off guard",
+      "full": "We find out a competitor changed its prices during a sales conversation we weren't prepared for.",
+      "wedge": "W4",
+      "persona": "Product Marketing",
+      "revision": 5,
+      "topic": "Keeping up with the market"
+    },
+    {
+      "id": "s2-22",
+      "short": "Every team repeats the same market research",
+      "full": "Several teams look up the same market questions without sharing what they've already found.",
+      "wedge": "W4",
+      "persona": "Product Marketing",
+      "revision": 5,
+      "topic": "Keeping up with the market"
+    },
+    {
+      "id": "s2-23",
+      "short": "Our AI can see data it shouldn't",
+      "full": "An AI tool can access customer or company information that the person using it isn't allowed to see.",
+      "wedge": "Cross-workflow",
+      "persona": "Across roles",
+      "revision": 6,
+      "topic": "Everyday work"
+    },
+    {
+      "id": "s2-24",
+      "short": "One person's AI tool. Nobody else can use it.",
+      "full": "A teammate builds something useful, but sharing it with everyone else is difficult or impossible.",
+      "wedge": "Cross-workflow",
+      "persona": "Across roles",
+      "revision": 6,
+      "topic": "Everyday work"
+    },
+    {
+      "id": "s2-25",
+      "short": "Copying the same data from tool to tool",
+      "full": "We manually paste information between systems because updates don't carry across automatically.",
+      "wedge": "Cross-workflow",
+      "persona": "Across roles",
+      "revision": 6,
+      "topic": "Everyday work"
+    }
+  ],
+  [
+    {
+      "id": "s3-01",
+      "short": "Contact changed jobs. CRM didn't.",
+      "full": "Someone moves to another company, but their record still links them to their old employer.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s3-02",
+      "short": "Can't find who signs off on the deal",
+      "full": "We have interested people in the conversation, but don't know who has the authority to approve the purchase.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s3-03",
+      "short": "Missing company details in the CRM",
+      "full": "Basic facts like company size, industry, or location are blank when we need to qualify an account.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s3-04",
+      "short": "Our best-fit accounts changed. Our lists didn't.",
+      "full": "The type of customer we serve best has changed, but our targeting still follows the old definition.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s3-05",
+      "short": "Lead routing rules nobody understands",
+      "full": "Nobody can explain or confidently change the rules that decide which rep receives each lead.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s3-06",
+      "short": "New leads wait on spreadsheet imports",
+      "full": "Fresh leads can't reach the sales team until someone uploads and checks another spreadsheet.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s3-07",
+      "short": "Paying for contact data we already have",
+      "full": "Different teams buy access to overlapping contact databases without knowing what we already own.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s3-08",
+      "short": "Sales alerts nobody has time to read",
+      "full": "So many account updates arrive that the team starts ignoring the useful ones too.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s3-09",
+      "short": "A website visit doesn't mean 'call me'",
+      "full": "Browsing a page gets treated as a request for a sales call, even when the visitor isn't ready.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s3-10",
+      "short": "Our sales emails land in spam",
+      "full": "Messages go to junk folders instead of the inbox, even when the email address is correct.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s3-11",
+      "short": "AI emails that sound like AI emails",
+      "full": "The wording is so generic or unnatural that the recipient can tell a tool wrote it.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s3-12",
+      "short": "Different lead sources. Same follow-up.",
+      "full": "A referral, an ad response, and a demo request all get the same message despite different expectations.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s3-13",
+      "short": "Nobody knows which outreach actually works",
+      "full": "We can't tell which messages or calls led to useful conversations rather than just activity.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s3-14",
+      "short": "Usage is dropping. Nobody checks in.",
+      "full": "Clients are using the product less, but the account team doesn't contact them to find out why.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s3-15",
+      "short": "New client leadership changes the whole deal",
+      "full": "A new leader brings different priorities, but our account plan still assumes nothing has changed.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s3-16",
+      "short": "Clients outgrow their plan before we notice",
+      "full": "A client's use has grown beyond their current plan, but nobody spots the chance to offer a better fit.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s3-17",
+      "short": "Client review decks eat up the week",
+      "full": "Preparing each customer review means gathering the same information and rebuilding slides by hand.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s3-18",
+      "short": "Discounting every renewal to keep the client",
+      "full": "Price cuts have become the default way to keep clients instead of resolving why they're unsure.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s3-19",
+      "short": "Renewal paperwork takes too many handoffs",
+      "full": "A client is ready to renew, but internal approvals and document handoffs hold up the agreement.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s3-20",
+      "short": "Upsell pitch lands during a support nightmare",
+      "full": "We ask a client to buy more while they're still waiting for us to fix a serious problem.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s3-21",
+      "short": "Sales still pitches features we retired",
+      "full": "The sales team uses old messaging and promises features the product no longer offers.",
+      "wedge": "W4",
+      "persona": "Product Marketing",
+      "revision": 5,
+      "topic": "Keeping up with the market"
+    },
+    {
+      "id": "s3-22",
+      "short": "Too much market news. No idea what matters.",
+      "full": "The team sees plenty of industry updates but can't tell which ones should change our plans.",
+      "wedge": "W4",
+      "persona": "Product Marketing",
+      "revision": 5,
+      "topic": "Keeping up with the market"
+    },
+    {
+      "id": "s3-23",
+      "short": "One app update breaks the whole workflow",
+      "full": "A small change in a connected tool stops an automated task that was working yesterday.",
+      "wedge": "Cross-workflow",
+      "persona": "Across roles",
+      "revision": 6,
+      "topic": "Everyday work"
+    },
+    {
+      "id": "s3-24",
+      "short": "Switching AI models means starting over",
+      "full": "Moving to a different model provider means rebuilding workflows we already invested time in.",
+      "wedge": "Cross-workflow",
+      "persona": "Across roles",
+      "revision": 6,
+      "topic": "Everyday work"
+    },
+    {
+      "id": "s3-25",
+      "short": "AI answers without a source to check",
+      "full": "The tool gives a confident answer but doesn't show where its facts came from.",
+      "wedge": "Cross-workflow",
+      "persona": "Across roles",
+      "revision": 6,
+      "topic": "Everyday work"
+    }
+  ],
+  [
+    {
+      "id": "s4-01",
+      "short": "Sales and marketing disagree on priority accounts",
+      "full": "The two teams focus on different companies, so campaigns and sales activity don't support each other.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s4-02",
+      "short": "Can't search accounts by the tools they use",
+      "full": "Account search can't show which software a company uses, so finding compatible prospects takes manual work.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s4-03",
+      "short": "No idea which lead sources are worth paying for",
+      "full": "We can't connect what we spend on a lead source to the customers it actually brings in.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s4-04",
+      "short": "Existing clients treated like brand-new leads",
+      "full": "Current customers enter prospect campaigns because our systems don't recognize that they already buy from us.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s4-05",
+      "short": "Account lists full of companies that shut down",
+      "full": "We keep researching or contacting businesses that are no longer operating because our list was never updated.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s4-06",
+      "short": "CRM cleanup is someone's full-time job",
+      "full": "Keeping records usable takes constant manual work instead of a process that prevents the errors.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s4-07",
+      "short": "New reps inherit account lists with no context",
+      "full": "A rep takes over accounts without knowing what's been tried, discussed, or agreed with them.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales leader",
+      "revision": 5,
+      "topic": "Finding customers"
+    },
+    {
+      "id": "s4-08",
+      "short": "Unsubscribed contacts back in the campaign",
+      "full": "Someone opts out, but an import or another tool adds them to a new outreach list.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s4-09",
+      "short": "Warm introductions get buried in chat",
+      "full": "A teammate offers an introduction to a prospect, but the message is forgotten before anyone acts.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s4-10",
+      "short": "Lead follow-up stops when the rep is away",
+      "full": "There's no backup for an absent rep, so active prospects wait until that person returns.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s4-11",
+      "short": "Good prospect. Nothing relevant to say.",
+      "full": "We know the company is a fit but can't find a timely, useful reason to start a conversation.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s4-12",
+      "short": "Sales calls end with no notes in the CRM",
+      "full": "The conversation happened, but there's no record of what was discussed or agreed for the next person to use.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s4-13",
+      "short": "High open rates. No actual conversations.",
+      "full": "Outreach looks successful in the email dashboard but doesn't lead to replies or useful discussions.",
+      "wedge": "W2",
+      "persona": "Demand Gen / SDR leader",
+      "revision": 5,
+      "topic": "Following up"
+    },
+    {
+      "id": "s4-14",
+      "short": "Only talking to clients at renewal time",
+      "full": "Regular check-ins don't happen, so we miss what's changed for a client until we ask them to renew.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s4-15",
+      "short": "Happy clients. No one asks for referrals.",
+      "full": "We know a client is getting good results but never ask whether they'd introduce us to someone else.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s4-16",
+      "short": "No one owns the client's success plan",
+      "full": "Several teams work with the client, but nobody is responsible for coordinating the promised outcomes.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s4-17",
+      "short": "Client feedback never reaches the product team",
+      "full": "Useful requests and complaints stay in calls and messages instead of informing product decisions.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s4-18",
+      "short": "Every client issue gets marked urgent",
+      "full": "Without a way to judge impact, the account team can't tell which client problems need attention first.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s4-19",
+      "short": "Closed support tickets. Still-unhappy clients.",
+      "full": "A ticket is marked resolved, but nobody checks whether the client feels the problem is actually fixed.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s4-20",
+      "short": "Sales and CS disagree on who's ready to expand",
+      "full": "Sales sees a chance to sell more while customer success sees an account that still needs work.",
+      "wedge": "W3",
+      "persona": "CS / Account Management",
+      "revision": 5,
+      "topic": "Keeping customers"
+    },
+    {
+      "id": "s4-21",
+      "short": "Losing to competitors for the same reason",
+      "full": "The same objection keeps costing us deals, but the lesson never changes our pitch or plan.",
+      "wedge": "W4",
+      "persona": "Product Marketing",
+      "revision": 5,
+      "topic": "Keeping up with the market"
+    },
+    {
+      "id": "s4-22",
+      "short": "Competitor claims we can't verify",
+      "full": "We hear claims about another product but can't find reliable evidence to check them.",
+      "wedge": "W4",
+      "persona": "Product Marketing",
+      "revision": 5,
+      "topic": "Keeping up with the market"
+    },
+    {
+      "id": "s4-23",
+      "short": "Our AI creates more work than it saves",
+      "full": "Reviewing and correcting the tool's output takes longer than doing the task ourselves.",
+      "wedge": "Cross-workflow",
+      "persona": "Across roles",
+      "revision": 6,
+      "topic": "Everyday work"
+    },
+    {
+      "id": "s4-24",
+      "short": "Same sales metric. Three different answers.",
+      "full": "Different systems report different results for the same number, so nobody knows which one to trust.",
+      "wedge": "W1",
+      "persona": "RevOps / Sales Ops",
+      "revision": 6,
+      "topic": "Everyday work"
+    },
+    {
+      "id": "s4-25",
+      "short": "Every simple automation needs an engineer",
+      "full": "Even a small change to an everyday workflow has to wait for technical help.",
+      "wedge": "Cross-workflow",
+      "persona": "Across roles",
+      "revision": 6,
+      "topic": "Everyday work"
+    }
+  ]
+]
