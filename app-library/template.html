@@ -23,14 +23,25 @@ html, body { margin: 0; }
 body { background: var(--paper); color: var(--ink); font: 16px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
 a { color: inherit; }
 button { font: inherit; color: inherit; }
-.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 18px; padding-block: 0 112px; }
-header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 18px; border-bottom: 1px solid var(--line); }
-.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 18px; padding-block: 0 calc(112px + env(safe-area-inset-bottom, 0px)); }
+body.has-cta .wrap { padding-bottom: calc(176px + env(safe-area-inset-bottom, 0px)); } /* room for the button bar above the tabs */
+#view:focus { outline: none; }
+header.top { display: grid; gap: 12px; padding-block: 14px 16px; border-bottom: 1px solid var(--line); }
+@media (min-width: 720px) { header.top { grid-template-columns: auto minmax(0, 400px); justify-content: space-between; align-items: center; padding-block: 18px; } }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; justify-self: start; }
 .brand svg { height: 26px; width: auto; display: block; }
 .brand-tag { font: 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding-left: 12px; border-left: 1px solid var(--line); }
+.search { position: relative; margin: 0; }
+.search input { width: 100%; font: 16px var(--body); padding: 12px 44px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); -webkit-appearance: none; appearance: none; }
+.search input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.search input:focus { outline: 2px solid var(--blue); outline-offset: 1px; border-color: var(--blue); }
+.search svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.search .clear { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); font-size: 22px; line-height: 1; cursor: pointer; }
+.search .clear[hidden] { display: none; }
 .eyebrow { font: 12px/1.3 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 h1, h2, h3 { margin: 0; text-wrap: balance; }
 h1 { font: 500 clamp(34px, 7vw, 54px)/1.04 var(--display); color: var(--blue); }
+h1.search-h { font-size: clamp(28px, 5vw, 38px); overflow-wrap: anywhere; }
 h2 { font: 500 26px/1.15 var(--display); }
 h3 { font: 600 16px/1.35 var(--body); }
 p { margin: 0; }
@@ -39,17 +50,13 @@ p { margin: 0; }
 .section { display: grid; gap: 16px; padding-block: 26px; }
 .hero { display: grid; gap: 16px; padding-block: 30px 8px; }
 .hero p.lede { font-size: 18px; color: var(--muted); max-width: 54ch; }
-.search { position: relative; }
-.search input { width: 100%; font: 16px var(--body); padding: 15px 16px 15px 46px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
-.search input:focus { outline: 2px solid var(--blue); outline-offset: 1px; border-color: var(--blue); }
-.search svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--muted); }
 .steps3 { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .steps3 div { background: var(--warm); border-radius: 12px; padding: 12px; font-size: 14px; }
 .steps3 b { display: block; font: 12px/1.2 var(--mono); letter-spacing: .08em; color: var(--blue); margin-bottom: 4px; }
 .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 8px; text-decoration: none; min-width: 0; }
 a.card:hover { border-color: var(--blue); }
-a.card:focus-visible, .btn:focus-visible, .chip-btn:focus-visible, .tab:focus-visible, .icon-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+a.card:focus-visible, .btn:focus-visible, .chip-btn:focus-visible, .tab:focus-visible, .icon-btn:focus-visible, .row:focus-visible, .back:focus-visible, a.chip:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 .card .count { font: 13px/1.3 var(--mono); color: var(--blue); }
 .list { display: grid; gap: 10px; }
 .row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; text-decoration: none; }
@@ -59,9 +66,12 @@ a.row:hover { border-color: var(--blue); }
 .row .arrow { color: var(--blue); font-size: 20px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { font: 12px/1 var(--mono); letter-spacing: .04em; padding: 6px 9px; border-radius: 999px; background: var(--soft); color: var(--blue); }
+a.chip { text-decoration: none; padding: 9px 12px; font-size: 13px; }
+a.chip:hover { background: var(--blue); color: var(--paper); }
 .chip.plain { background: var(--warm); color: var(--ink); }
 .chip.confirm { background: var(--warm); color: var(--muted); font-size: 11px; padding: 4px 7px; vertical-align: 1px; }
 .back { display: inline-flex; gap: 6px; align-items: center; text-decoration: none; color: var(--blue); font-weight: 500; padding-block: 18px 4px; }
+.back-end { border-top: 1px solid var(--line); margin-top: 8px; }
 .agent { display: grid; gap: 22px; padding-block: 8px 20px; }
 .agent-head { display: grid; gap: 12px; }
 .agent-head .what { font-size: 18px; max-width: 62ch; }
@@ -83,7 +93,7 @@ ol.flow li:not(:last-child)::after { content: ""; position: absolute; left: 14.5
 .solves a:hover { border-color: var(--blue); }
 .solves .t { font-weight: 600; }
 .solves .h { font-size: 14px; color: var(--muted); }
-.cta-bar { position: fixed; left: 0; right: 0; bottom: 64px; padding: 10px 18px calc(10px + env(safe-area-inset-bottom, 0px) * 0); background: linear-gradient(to top, var(--paper) 70%, rgba(247, 245, 240, 0)); z-index: 5; }
+.cta-bar { position: fixed; left: 0; right: 0; bottom: calc(66px + env(safe-area-inset-bottom, 0px)); padding: 10px 18px; background: linear-gradient(to top, var(--paper) 70%, rgba(247, 245, 240, 0)); z-index: 5; }
 .cta-inner { max-width: 1040px; margin: 0 auto; display: flex; gap: 10px; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; padding: 14px 20px; font-weight: 600; text-decoration: none; border: 1px solid var(--blue); cursor: pointer; }
 .btn.primary { background: var(--blue); color: var(--paper); flex: 1; }
@@ -105,7 +115,7 @@ nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surf
 .made-for { background: var(--blue); color: var(--paper); border-radius: 18px; padding: 20px; display: grid; gap: 8px; }
 .made-for h2 { color: var(--paper); }
 .made-for .eyebrow { color: rgba(247, 245, 240, .75); }
-.toast { position: fixed; left: 50%; bottom: 140px; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 999px; font-size: 14px; z-index: 10; }
+.toast { position: fixed; left: 50%; bottom: calc(150px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 999px; font-size: 14px; z-index: 10; }
 @media (max-width: 520px) { .steps3 { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: no-preference) { .card, .row, .solves a { transition: border-color .15s; } }
 </style>
@@ -114,12 +124,18 @@ nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surf
 <div class="wrap">
   <header class="top">
     <a class="brand" href="#/" aria-label="Cotera App Library home">__LOGO__<span class="brand-tag">App Library</span></a>
+    <form class="search" id="search-form" role="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search problems and agents" aria-label="Search the library" autocomplete="off" enterkeyhint="search">
+      <button class="clear" id="q-clear" type="button" aria-label="Clear search" hidden>×</button>
+    </form>
   </header>
   <main id="view" tabindex="-1"></main>
 </div>
 <div id="cta"></div>
 <nav class="tabs" aria-label="Sections">
   <a class="tab" id="tab-lib" href="#/"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Library</a>
+  <a class="tab" id="tab-search" href="#/search/"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</a>
   <a class="tab" id="tab-my" href="#/my"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span>My agents<span id="my-count"></span></span></a>
 </nav>
 <script>
@@ -128,91 +144,259 @@ window.LIB = __DATA__;
 <script>
 (function () {
   var LIB = window.LIB, view = document.getElementById('view'), cta = document.getElementById('cta');
-  var agentsById = {}, problemsById = {};
-  LIB.agents.forEach(function (a) { agentsById[a.id] = a; a.problems.forEach(function (p) { problemsById[p.id] = p; }); });
+  var q = document.getElementById('q'), qClear = document.getElementById('q-clear');
+  var agentsById = {}, rolesById = {};
+  LIB.agents.forEach(function (a) { agentsById[a.id] = a; });
+  LIB.roles.forEach(function (r) { rolesById[r.id] = r; });
   var WEDGE = { W1: 'Account targeting', W2: 'Buyer readiness', W3: 'Customer risk & growth', W4: 'Market intelligence', W5: 'Operational intelligence', Platform: 'Running agents safely' };
 
-  // Per-viewer memory: saved agents and private-link spaces. Wrapped because storage can be blocked.
+  // Per-viewer memory: saved agents and the private pages opened on this device. Wrapped because storage can be blocked.
   function load(k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
   function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
-  var saved = load('cotera-lib-saved', []), spaces = load('cotera-lib-spaces', []);
+  var saved = load('cotera-lib-saved', []), spaces = load('cotera-lib-spaces', []), spaceData = load('cotera-lib-space-data', {}), missing = {};
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function rich(s) { return esc(s).replace(/\([^()]*?to confirm\)/gi, '<span class="chip confirm">confirm access</span>'); }
-  function wedgeChips(w) { return (w.match(/W[1-5]|Platform/g) || []).filter(function (x, i, arr) { return arr.indexOf(x) === i; }).map(function (k) { return '<span class="chip" title="Cotera wedge">' + esc(WEDGE[k]) + '</span>'; }).join(''); }
+  function wedgeKeys(w) { return (String(w || '').match(/W[1-5]|Platform/g) || []).filter(function (x, i, arr) { return arr.indexOf(x) === i; }); }
+  function wedgeChips(w) { return wedgeKeys(w).map(function (k) { return '<span class="chip" title="Cotera wedge">' + esc(WEDGE[k]) + '</span>'; }).join(''); }
   function linkFor(id) { return LIB.links[id] || ''; }
+  function setTitle(t) { document.title = (t ? t + ' · ' : '') + 'Cotera App Library'; }
+  function decode(s) { try { return decodeURIComponent(s); } catch (e) { return s; } }
+  function customAgent(code, id) { var sp = spaceData[code]; return sp ? sp.agents.filter(function (x) { return x.id === id; })[0] : null; }
   function toast(msg) { var t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(function () { t.remove(); }, 1800); }
-  function updateTabs(route) {
-    document.getElementById('tab-lib').setAttribute('aria-current', route === 'my' ? 'false' : 'page');
-    document.getElementById('tab-my').setAttribute('aria-current', route === 'my' ? 'page' : 'false');
-    var n = saved.length + spaces.reduce(function (s, c) { var sp = LIB.custom[c]; return s + (sp ? sp.agents.length : 0); }, 0);
+  function row(href, title, sub, attrs) { return '<a class="row" href="' + esc(href) + '"' + (attrs || '') + '><span><span class="title">' + esc(title) + '</span><br><span class="sub">' + esc(sub) + '</span></span><span class="arrow" aria-hidden="true">›</span></a>'; }
+  function agentCard(a, href) { return '<a class="card" href="' + esc(href || '#/agent/' + a.id) + '"><div class="chips"><span class="chip plain">' + esc(a.type) + '</span></div><h3>' + esc(a.name) + '</h3><p class="muted">' + esc(a.what) + '</p></a>'; }
+  var HEART = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
+
+  // Navigation. Every page has its own address, so the browser's Back button, the Back links and shared links all work.
+  // Each history entry remembers the page it was opened from; Back and Forward return to the same scroll position.
+  var current = null, scrolls = {};
+  try { history.scrollRestoration = 'manual'; } catch (e) {}
+  function here() { return location.hash || '#/'; }
+  function show(fresh) {
+    if (current !== null) scrolls[current] = window.scrollY;
+    current = here();
+    route();
+    window.scrollTo(0, fresh ? 0 : scrolls[current] || 0);
+  }
+  function go(hash, replace) {
+    if (!replace && hash === here()) { window.scrollTo(0, 0); return; }
+    history[replace ? 'replaceState' : 'pushState']({ from: replace ? (history.state && history.state.from) || null : here() }, '', hash);
+    show(true);
+  }
+  function onNav() {  // Back and Forward land on entries that carry state; an address typed into the browser arrives without
+    if (here() === current) return;
+    var fresh = !history.state;
+    if (fresh) history.replaceState({ from: current }, '');
+    show(fresh);
+  }
+  window.addEventListener('popstate', onNav);
+  window.addEventListener('hashchange', onNav);
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
+    if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    if (a.hasAttribute('data-back')) { history.back(); return; }
+    go(a.getAttribute('href'), a.hasAttribute('data-replace'));
+    view.focus({ preventScroll: true });
+  });
+
+  // The Back link at the top of every page except the library home: to the page the visitor came from,
+  // or, when they opened this page straight from a link or QR code, to the page above it.
+  function labelFor(h) {
+    var p = h.replace(/^#\/?/, '').split('/'), r = p[0];
+    if (!r) return 'Library';
+    if (r === 'search') return 'Search results';
+    if (r === 'role' && rolesById[p[1]]) return rolesById[p[1]].label;
+    if (r === 'agents') return 'All agents';
+    if (r === 'agent' && agentsById[p[1]]) return agentsById[p[1]].name;
+    if (r === 'custom') { var c = customAgent(p[1], p[2]); return c ? c.name : 'My agents'; }
+    if (r === 'my') return 'My agents';
+    if (r === 'get') return 'Request form';
+    return 'Back';
+  }
+  function back(parent, label, end) {
+    var from = history.state && history.state.from;
+    var link = from && from !== current ? '<a class="back" href="' + esc(from) + '" data-back>‹ ' + esc(labelFor(from)) + '</a>'
+      : '<a class="back" href="' + esc(parent) + '">‹ ' + esc(label) + '</a>';
+    return end ? '<div class="back-end">' + link + '</div>' : link;
+  }
+
+  // Search: the bar at the top of every page searches the whole library and any private page opened on this device.
+  var STOP = ['a', 'an', 'and', 'are', 'for', 'in', 'is', 'of', 'on', 'or', 'our', 'the', 'to', 'we', 'with', 'my', 'too', 'many', 'not'];
+  var SUGGEST = ['duplicates', 'churn', 'event leads', 'renewals', 'account research', 'competitors'];
+  // Agents are written for any tool ("the CRM"), so a product name searches for what the product is.
+  var TOOLS = {
+    salesforce: 'crm', sfdc: 'crm', hubspot: 'crm', pipedrive: 'crm', zoho: 'crm', attio: 'crm',
+    gong: 'transcript', chorus: 'transcript', fireflies: 'transcript', otter: 'transcript', fathom: 'transcript', avoma: 'transcript', zoom: 'meeting',
+    zendesk: 'ticket', intercom: 'ticket', freshdesk: 'ticket',
+    salesloft: 'outreach', lemlist: 'outreach', zoominfo: 'contact', apollo: 'contact', clay: 'contact', clearbit: 'contact', lusha: 'contact', cognism: 'contact',
+    marketo: 'email', pardot: 'email', eloqua: 'email', mailchimp: 'email', braze: 'email', klaviyo: 'email',
+    gainsight: 'renewal', totango: 'renewal', churnzero: 'renewal', vitally: 'renewal', planhat: 'renewal',
+    snowflake: 'report', bigquery: 'report', databricks: 'report', redshift: 'report', tableau: 'report', looker: 'report', powerbi: 'report',
+    excel: 'spreadsheet', navigator: 'linkedin'
+  };
+  function low(s) { return String(s == null ? '' : s).toLowerCase(); }
+  function terms(text) {  // the words to look for; .tools lists product names swapped for what they are
+    var tools = [];
+    var words = low(text).replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).filter(function (w) { return w && STOP.indexOf(w) === -1; }).map(function (w) {
+      if (TOOLS.hasOwnProperty(w)) { tools.push([w, TOOLS[w]]); return TOOLS[w]; }
+      return w === 'duplicates' || w === 'duplicate' ? 'dup' : (w.length > 4 && /s$/.test(w) ? w.slice(0, -1) : w);
+    });
+    words.tools = tools;
+    return words;
+  }
+  function agentFields(a) {
+    return [[low(a.name), 3], [low(a.what), 2], [low([a.type, (a.how || []).join(' '), a.data, a.who, a.first, a.measure, wedgeKeys(a.wedge).map(function (k) { return WEDGE[k]; }).join(' ')].join(' ')), 1]];
+  }
+  var INDEX = { teams: [], problems: [], agents: [] };
+  LIB.roles.forEach(function (r) { INDEX.teams.push({ r: r, f: [[low(r.label), 3], [low(r.description), 2]] }); });
+  LIB.agents.forEach(function (a) {
+    INDEX.agents.push({ a: a, f: agentFields(a) });
+    a.problems.forEach(function (p) { INDEX.problems.push({ a: a, p: p, f: [[low(p.card), 3], [low(p.statement), 2], [low(p.how + ' ' + p.roles.join(' ')), 1]] }); });
+  });
+  function score(fields, words) {  // every word must appear somewhere; title matches count most
+    var total = 0;
+    for (var i = 0; i < words.length; i++) {
+      var best = 0;
+      for (var j = 0; j < fields.length; j++) if (fields[j][1] > best && fields[j][0].indexOf(words[i]) > -1) best = fields[j][1];
+      if (!best) return 0;
+      total += best;
+    }
+    return total;
+  }
+  function ranked(list, words) {
+    return list.map(function (x, i) { return { x: x, s: score(x.f, words), i: i }; }).filter(function (y) { return y.s; })
+      .sort(function (m, n) { return n.s - m.s || m.i - n.i; }).map(function (y) { return y.x; });
+  }
+  function isSearch() { return /^#\/search(\/|$)/.test(current || ''); }
+  function searchHash() { return '#/search/' + encodeURIComponent(q.value.trim()); }
+  q.addEventListener('input', function () {
+    qClear.hidden = !q.value;
+    if (!isSearch()) { go(searchHash()); return; }
+    history.replaceState(history.state, '', searchHash());
+    current = here();
+    route();
+  });
+  qClear.addEventListener('click', function () { q.value = ''; q.dispatchEvent(new Event('input')); q.focus(); });
+  document.getElementById('search-form').addEventListener('submit', function (e) { e.preventDefault(); if (!isSearch()) go(searchHash()); q.blur(); });
+  document.getElementById('tab-search').addEventListener('click', function (e) {
+    e.preventDefault();
+    if (!isSearch()) go(searchHash());
+    window.scrollTo(0, 0);
+    q.focus();
+  });
+  function suggestions() { return '<div class="chips">' + SUGGEST.map(function (s) { return '<a class="chip" data-replace href="#/search/' + encodeURIComponent(s) + '">' + esc(s) + '</a>'; }).join('') + '</div>'; }
+  function teamList() { return '<section class="section"><h2>Browse by team</h2><div class="list">' + LIB.roles.map(function (r) { return row('#/role/' + r.id, r.label, r.problems.length + ' problems'); }).join('') + '</div></section>'; }
+  function group(title, rows, note) { return '<div class="stack"><h2 class="eyebrow">' + esc(title) + '</h2><div class="list">' + rows.join('') + '</div>' + (note ? '<p class="muted" style="font-size:14px">' + esc(note) + '</p>' : '') + '</div>'; }
+
+  function search(text) {
+    cta.innerHTML = '';
+    setTitle(text.trim() ? 'Search: ' + text.trim() : 'Search');
+    var words = terms(text);
+    if (!words.length) {
+      view.innerHTML = back('#/', 'Library') + '<section class="section"><span class="eyebrow">Search</span><h1>What are you working on?</h1>' +
+        '<p class="muted">Type a problem, a tool or a team in the search bar above, or try one of these:</p>' + suggestions() + '</section>' + teamList();
+      return;
+    }
+    var mine = [];
+    spaces.forEach(function (code) { var sp = spaceData[code]; if (sp) sp.agents.forEach(function (a) { mine.push({ code: code, sp: sp, a: a, f: agentFields(a) }); }); });
+    var made = ranked(mine, words), teams = ranked(INDEX.teams, words), probs = ranked(INDEX.problems, words), agents = ranked(INDEX.agents, words);
+    var total = made.length + teams.length + probs.length + agents.length, quoted = '“' + esc(text.trim()) + '”';
+    var html = back('#/', 'Library') + '<section class="section"><span class="eyebrow">Search</span><h1 class="search-h">' +
+      (total ? total + (total === 1 ? ' result for ' : ' results for ') + quoted : 'No match for ' + quoted + ' yet') + '</h1>' +
+      words.tools.map(function (t) { return '<p class="muted" style="font-size:14px">Agents aren\'t tied to one product, so “' + esc(t[0]) + '” also finds “' + esc(t[1]) + '”.</p>'; }).join('');
+    if (!total) html += '<p class="muted">Try a shorter or different word, one of these, or browse by team below.</p>' + suggestions();
+    if (made.length) html += group('Made for you', made.map(function (m) { return row('#/custom/' + m.code + '/' + m.a.id, m.a.name, 'Made for ' + m.sp.for); }));
+    if (teams.length) html += group('Teams', teams.map(function (x) { return row('#/role/' + x.r.id, x.r.label, x.r.problems.length + ' problems · ' + x.r.description); }));
+    if (probs.length) html += group('Problems', probs.slice(0, 40).map(function (x) { return row('#/agent/' + x.a.id + '/' + x.p.id, x.p.card, x.p.statement); }), probs.length > 40 ? 'Showing the 40 closest matches. Add a word to narrow it down.' : '');
+    if (agents.length) html += group('Agents', agents.slice(0, 20).map(function (x) { return row('#/agent/' + x.a.id, x.a.name, x.a.what); }), agents.length > 20 ? 'Showing the 20 closest matches. Add a word to narrow it down.' : '');
+    view.innerHTML = html + '</section>' + (total ? back('#/', 'Library', true) : teamList());
+  }
+
+  // Private pages live in their own files (for/<code>.json), so the public page never contains them and only someone
+  // with the link can load one. The latest copy is kept on the device so My agents opens instantly.
+  function fetchSpace(code) {
+    return fetch('for/' + encodeURIComponent(code) + '.json', { cache: 'no-cache' }).then(function (res) {
+      if (!res.ok && res.status !== 404) throw new Error('HTTP ' + res.status);
+      return res.ok ? res.json().catch(function () { return null; }) : null;
+    }).then(function (sp) {
+      if (sp && Array.isArray(sp.agents)) { spaceData[code] = sp; delete missing[code]; } else { sp = null; delete spaceData[code]; missing[code] = true; }
+      store('cotera-lib-space-data', spaceData);
+      return sp;
+    });
+  }
+  function withSpace(code, render) {  // render(space, or null if the link isn't known) once the private page is loaded
+    if (spaceData[code] || missing[code]) return render(spaceData[code] || null);
+    var at = current;
+    cta.innerHTML = '';
+    view.innerHTML = back('#/', 'Library') + '<section class="section"><p class="muted">Opening your page…</p></section>';
+    fetchSpace(code).then(function () { if (current === at) route(); }, function () {
+      if (current !== at) return;
+      view.innerHTML = back('#/', 'Library') + '<section class="section"><h1>We couldn\'t load this page.</h1><p class="muted">Check your connection and try again.</p><p><button class="btn ghost small" id="retry" type="button">Try again</button></p></section>';
+      document.getElementById('retry').addEventListener('click', route);
+    });
+  }
+  function refreshSpaces() {  // pick up changes to private pages already opened on this device
+    spaces.forEach(function (code) {
+      var before = JSON.stringify(spaceData[code] || null);
+      fetchSpace(code).then(function (sp) {
+        if (!sp) { spaces = spaces.filter(function (c) { return c !== code; }); store('cotera-lib-spaces', spaces); }
+        if (JSON.stringify(sp) !== before && /^#\/(my|custom\/|search)/.test(current)) route(); else updateTabs();
+      }, function () {});
+    });
+  }
+
+  function updateTabs() {
+    var r = (current || '').replace(/^#\/?/, '').split('/')[0];
+    var tab = r === 'search' ? 'search' : (r === 'my' || r === 'custom' || r === 'for') ? 'my' : 'lib';
+    ['lib', 'search', 'my'].forEach(function (t) { document.getElementById('tab-' + t).setAttribute('aria-current', t === tab ? 'page' : 'false'); });
+    var n = saved.filter(function (id) { return agentsById[id]; }).length + spaces.reduce(function (s, c) { return s + (spaceData[c] ? spaceData[c].agents.length : 0); }, 0);
     document.getElementById('my-count').innerHTML = n ? '<span class="n">' + n + '</span>' : '';
   }
-  var SEARCH_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
-  var HEART = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
 
   function home() {
     cta.innerHTML = '';
+    setTitle('');
     var roles = LIB.roles.map(function (r) {
       return '<a class="card" href="#/role/' + r.id + '"><span class="count">' + r.problems.length + ' problems</span><h2>' + esc(r.label) + '</h2><p class="muted">' + esc(r.description) + '</p></a>';
     }).join('');
     view.innerHTML =
       '<section class="hero"><span class="eyebrow">Cotera App Library</span><h1>Start from an agent that already works.</h1>' +
-      '<p class="lede">Pick a problem your team deals with every week. Each one comes with a ready-made Cotera agent you can open in your own workspace and adapt.</p>' +
-      '<label class="search">' + SEARCH_ICON + '<input id="q" type="search" placeholder="Search a problem, e.g. duplicates in the CRM" aria-label="Search problems and agents" autocomplete="off"></label></section>' +
-      '<div id="results"></div>' +
-      '<section class="section" id="browse"><div class="steps3"><div><b>1 · FIND</b>Pick the problem that sounds like your week.</div><div><b>2 · SEE</b>See the agent: what it does and how to start small.</div><div><b>3 · OPEN</b>Open it in your Cotera workspace and adapt it.</div></div>' +
+      '<p class="lede">Pick a problem your team deals with every week. Each one comes with a ready-made Cotera agent you can open in your own workspace and adapt.</p></section>' +
+      '<section class="section"><div class="steps3"><div><b>1 · FIND</b>Search, or pick the problem that sounds like your week.</div><div><b>2 · SEE</b>See the agent: what it does and how to start small.</div><div><b>3 · OPEN</b>Open it in your Cotera workspace and adapt it.</div></div>' +
       '<h2>Browse by team</h2><div class="grid">' + roles + '</div>' +
       '<p><a class="btn ghost small" href="#/agents">See all ' + LIB.agents.length + ' agents</a></p></section>';
-    var q = document.getElementById('q');
-    q.addEventListener('input', function () { searchResults(q.value); });
-  }
-
-  function searchResults(text) {
-    var box = document.getElementById('results'), browse = document.getElementById('browse');
-    var STOP = ['a','an','and','are','for','in','is','of','on','or','our','the','to','we','with','my','too','many','not'];
-    var words = text.toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).filter(function (w) { return w && STOP.indexOf(w) === -1; }).map(function (w) { return w === 'duplicates' || w === 'duplicate' ? 'dup' : (w.length > 4 && /s$/.test(w) ? w.slice(0, -1) : w); });
-    if (!words.length) { box.innerHTML = ''; browse.hidden = false; return; }
-    function hit(s) { s = s.toLowerCase(); return words.every(function (w) { return s.indexOf(w) > -1; }); }
-    var probs = [], agents = [];
-    LIB.agents.forEach(function (a) {
-      a.problems.forEach(function (p) { if (hit(p.card + ' ' + p.statement)) probs.push({ a: a, p: p }); });
-      if (hit(a.name + ' ' + a.what)) agents.push(a);
-    });
-    browse.hidden = true;
-    box.innerHTML = '<section class="section"><span class="eyebrow">' + (probs.length + agents.length) + ' results</span><div class="list">' +
-      probs.slice(0, 30).map(function (x) { return '<a class="row" href="#/agent/' + x.a.id + '/' + x.p.id + '"><span><span class="title">' + esc(x.p.card) + '</span><br><span class="sub">' + esc(x.a.name) + '</span></span><span class="arrow" aria-hidden="true">›</span></a>'; }).join('') +
-      agents.slice(0, 12).map(function (a) { return '<a class="row" href="#/agent/' + a.id + '"><span><span class="title">' + esc(a.name) + '</span><br><span class="sub">' + esc(a.what) + '</span></span><span class="arrow" aria-hidden="true">›</span></a>'; }).join('') +
-      (probs.length + agents.length ? '' : '<div class="empty"><h3>No match yet</h3><p class="muted">Try a shorter word, or browse by team below.</p></div>') + '</div></section>';
   }
 
   function role(id) {
     cta.innerHTML = '';
-    var r = LIB.roles.filter(function (x) { return x.id === id; })[0];
+    var r = rolesById[id];
     if (!r) return notFound();
-    view.innerHTML = '<a class="back" href="#/">‹ All teams</a><section class="section"><span class="eyebrow">' + r.problems.length + ' problems</span><h1>' + esc(r.label) + '</h1><p class="muted">' + esc(r.description) + '. Tap the one that sounds most like your week.</p><div class="list">' +
-      r.problems.map(function (p) { var a = agentsById[p.agent]; return '<a class="row" href="#/agent/' + a.id + '/' + p.id + '"><span><span class="title">' + esc(p.card) + '</span><br><span class="sub">' + esc(p.statement) + '</span></span><span class="arrow" aria-hidden="true">›</span></a>'; }).join('') +
-      '</div></section>';
+    setTitle(r.label);
+    view.innerHTML = back('#/', 'Library') + '<section class="section"><span class="eyebrow">' + r.problems.length + ' problems</span><h1>' + esc(r.label) + '</h1><p class="muted">' + esc(r.description) + '. Tap the one that sounds most like your week.</p><div class="list">' +
+      r.problems.map(function (p) { return row('#/agent/' + p.agent + '/' + p.id, p.card, p.statement); }).join('') +
+      '</div></section>' + back('#/', 'Library', true);
   }
 
   function allAgents() {
     cta.innerHTML = '';
-    view.innerHTML = '<a class="back" href="#/">‹ Library</a><section class="section"><h1>All agents</h1><p class="muted">Each agent solves one or more related problems.</p><div class="grid">' +
-      LIB.agents.map(agentCard).join('') + '</div></section>';
-  }
-  function agentCard(a, href) {
-    return '<a class="card" href="' + (href || '#/agent/' + a.id) + '"><div class="chips"><span class="chip plain">' + esc(a.type) + '</span></div><h3>' + esc(a.name) + '</h3><p class="muted">' + esc(a.what) + '</p></a>';
+    setTitle('All agents');
+    view.innerHTML = back('#/', 'Library') + '<section class="section"><h1>All agents</h1><p class="muted">Each agent solves one or more related problems.</p><div class="grid">' +
+      LIB.agents.map(function (a) { return agentCard(a); }).join('') + '</div></section>' + back('#/', 'Library', true);
   }
 
   function agentPage(a, problemId, custom) {
+    setTitle(a.name);
     var p = problemId && a.problems.filter(function (x) { return x.id === problemId; })[0];
+    var up = custom ? ['#/my', 'My agents'] : ['#/', 'Library'];
     var steps = a.how.map(function (s) { return '<li><span>' + rich(s) + '</span></li>'; }).join('');
     var solves = a.problems.length ? '<div class="block"><h3>Problems it solves</h3><div class="solves">' + a.problems.map(function (x) {
-      return '<a class="' + (p && x.id === p.id ? 'current' : '') + '" href="' + (custom ? '#/custom/' + custom + '/' + a.id : '#/agent/' + a.id + '/' + x.id) + '"><span class="t">' + esc(x.card) + '</span><span class="h">' + rich(x.how) + '</span></a>';
+      return '<a class="' + (p && x.id === p.id ? 'current' : '') + '" data-replace href="' + (custom ? '#/custom/' + custom + '/' + a.id : '#/agent/' + a.id + '/' + x.id) + '"><span class="t">' + esc(x.card) + '</span><span class="h">' + rich(x.how) + '</span></a>';
     }).join('') + '</div></div>' : '';
-    view.innerHTML = '<a class="back" href="' + (custom ? '#/my' : 'javascript:history.back()') + '">‹ Back</a>' +
+    view.innerHTML = back(up[0], up[1]) +
       '<article class="agent">' +
-      '<div class="agent-head"><div class="chips"><span class="chip plain">' + esc(a.type) + '</span>' + wedgeChips(a.wedge || '') + (custom ? '<span class="chip">Made for you</span>' : '') + '</div>' +
+      '<div class="agent-head"><div class="chips"><span class="chip plain">' + esc(a.type) + '</span>' + wedgeChips(a.wedge) + (custom ? '<span class="chip">Made for you</span>' : '') + '</div>' +
       '<h1>' + esc(a.name) + '</h1><p class="what">' + rich(a.what) + '</p></div>' +
       (p ? '<div class="your-problem"><span class="eyebrow">Your problem</span><p class="q">' + esc(p.card) + '</p><p class="muted">' + esc(p.statement) + '</p><p class="how"><strong>How this agent helps:</strong> ' + rich(p.how) + '</p></div>' : '') +
       '<div class="cols"><div class="stack"><div class="block"><h3>How it works</h3><ol class="flow">' + steps + '</ol></div>' + solves + '</div>' +
@@ -222,7 +406,7 @@ window.LIB = __DATA__;
       '<div class="block"><h3>How you\'ll know it works</h3><p>' + rich(a.measure) + '</p></div>' +
       '<div class="block"><h3>A question to tailor it</h3><p>' + esc((p && p.ask) || a.ask) + '</p></div></div></div>' +
       '<p class="muted" style="font-size:14px"><span class="chip confirm">confirm access</span> marks data or permissions to check with your team before switching it on. Every agent starts with output a person reviews.</p>' +
-      '</article>';
+      '</article>' + back(up[0], up[1], true);
     var link = custom ? (a.link || '') : linkFor(a.id), isSaved = saved.indexOf(a.id) > -1;
     cta.innerHTML = '<div class="cta-bar"><div class="cta-inner">' +
       (link ? '<a class="btn primary" href="' + esc(link) + '" target="_blank" rel="noreferrer">Open in Cotera</a>' : '<a class="btn primary" href="#/get/' + (custom ? custom + ':' : '') + a.id + '">Get this agent</a>') +
@@ -234,16 +418,28 @@ window.LIB = __DATA__;
       if (i > -1) saved.splice(i, 1); else saved.push(a.id);
       store('cotera-lib-saved', saved);
       btn.setAttribute('aria-pressed', i === -1); btn.setAttribute('aria-label', i === -1 ? 'Remove from My agents' : 'Save to My agents');
-      toast(i === -1 ? 'Saved to My agents' : 'Removed from My agents'); updateTabs('agent');
+      toast(i === -1 ? 'Saved to My agents' : 'Removed from My agents'); updateTabs();
+    });
+  }
+
+  function customPage(code, id) {
+    withSpace(code, function () {
+      var a = customAgent(code, id);
+      if (a) agentPage(a, null, code); else notFound();
     });
   }
 
   function getAgent(key) {
     var custom = key.indexOf(':') > -1 ? key.split(':')[0] : null, id = custom ? key.split(':')[1] : key;
-    var a = custom ? (LIB.custom[custom] || { agents: [] }).agents.filter(function (x) { return x.id === id; })[0] : agentsById[id];
+    if (custom) return withSpace(custom, function () { requestForm(customAgent(custom, id), custom); });
+    requestForm(agentsById[id], null);
+  }
+  function requestForm(a, custom) {
     if (!a) return notFound();
     cta.innerHTML = '';
-    view.innerHTML = '<a class="back" href="javascript:history.back()">‹ Back</a><section class="section"><span class="eyebrow">Get this agent</span><h1>' + esc(a.name) + '</h1>' +
+    setTitle('Get ' + a.name);
+    var up = custom ? '#/custom/' + custom + '/' + a.id : '#/agent/' + a.id;
+    view.innerHTML = back(up, a.name) + '<section class="section"><span class="eyebrow">Get this agent</span><h1>' + esc(a.name) + '</h1>' +
       '<p class="muted">Tell us where to set it up. We\'ll add it to your Cotera workspace, or send you a link to open it there.</p>' +
       '<form class="form" id="req"><label>Your name<input name="name" required autocomplete="name"></label>' +
       '<label>Work email<input name="email" type="email" required autocomplete="email"></label>' +
@@ -252,17 +448,19 @@ window.LIB = __DATA__;
       '<button class="btn primary" type="submit">Request this agent</button><p class="proto">Prototype: requests are not sent anywhere yet.</p></form></section>';
     document.getElementById('req').addEventListener('submit', function (e) {
       e.preventDefault();
-      if (!custom && saved.indexOf(a.id) === -1) { saved.push(a.id); store('cotera-lib-saved', saved); updateTabs('agent'); }
-      view.innerHTML = '<section class="section"><span class="eyebrow">Request received</span><h1>You\'re on the list.</h1><p class="muted">We\'ll set up <strong>' + esc(a.name) + '</strong> in your Cotera workspace and email you when it\'s ready. It\'s saved in My agents in the meantime.</p>' +
-        '<p class="proto">Prototype: nothing was sent.</p><p><a class="btn ghost small" href="#/my">Go to My agents</a> <a class="btn ghost small" href="#/">Keep browsing</a></p></section>';
+      if (!custom && saved.indexOf(a.id) === -1) { saved.push(a.id); store('cotera-lib-saved', saved); updateTabs(); }
+      view.innerHTML = back(up, a.name) + '<section class="section"><span class="eyebrow">Request received</span><h1>You\'re on the list.</h1><p class="muted">We\'ll set up <strong>' + esc(a.name) + '</strong> in your Cotera workspace and email you when it\'s ready. It\'s saved in My agents in the meantime.</p>' +
+        '<p class="proto">Prototype: nothing was sent.</p><p><a class="btn ghost small" data-replace href="#/my">Go to My agents</a> <a class="btn ghost small" data-replace href="#/">Keep browsing</a></p></section>';
+      window.scrollTo(0, 0);
     });
   }
 
   function my() {
     cta.innerHTML = '';
-    var html = '<section class="section"><span class="eyebrow">My agents</span><h1>Your starting points.</h1></section>';
+    setTitle('My agents');
+    var html = back('#/', 'Library') + '<section class="section"><span class="eyebrow">My agents</span><h1>Your starting points.</h1></section>';
     spaces.forEach(function (code) {
-      var sp = LIB.custom[code]; if (!sp) return;
+      var sp = spaceData[code]; if (!sp) return;
       html += '<section class="section"><div class="made-for"><span class="eyebrow">Made for ' + esc(sp.for) + '</span><h2>' + esc(sp.title) + '</h2><p>' + esc(sp.note) + '</p></div><div class="grid">' +
         sp.agents.map(function (a) { return agentCard(a, '#/custom/' + code + '/' + a.id); }).join('') +
         (sp.library || []).map(function (id) { return agentsById[id] ? agentCard(agentsById[id]) : ''; }).join('') + '</div></section>';
@@ -274,30 +472,43 @@ window.LIB = __DATA__;
   }
 
   function openSpace(code) {
-    if (!LIB.custom[code]) { cta.innerHTML = ''; view.innerHTML = '<section class="section"><h1>This link isn\'t recognised.</h1><p class="muted">Check the link you were sent, or browse the library.</p><p><a class="btn ghost small" href="#/">Browse the library</a></p></section>'; return; }
-    if (spaces.indexOf(code) === -1) { spaces.push(code); store('cotera-lib-spaces', spaces); }
-    location.replace('#/my');
+    withSpace(code, function (sp) {
+      if (!sp) {
+        cta.innerHTML = ''; setTitle('Link not recognised');
+        view.innerHTML = back('#/', 'Library') + '<section class="section"><h1>This link isn\'t recognised.</h1><p class="muted">Check the link you were sent, or browse the library.</p><p><a class="btn ghost small" href="#/">Browse the library</a></p></section>';
+        return;
+      }
+      if (spaces.indexOf(code) === -1) { spaces.push(code); store('cotera-lib-spaces', spaces); }
+      go('#/my', true);
+    });
   }
 
-  function notFound() { cta.innerHTML = ''; view.innerHTML = '<section class="section"><h1>Page not found.</h1><p><a class="btn ghost small" href="#/">Back to the library</a></p></section>'; }
+  function notFound() { cta.innerHTML = ''; setTitle('Page not found'); view.innerHTML = back('#/', 'Library') + '<section class="section"><h1>Page not found.</h1><p class="muted">The link may be out of date. Search above, or go back to the library.</p><p><a class="btn ghost small" href="#/">Back to the library</a></p></section>'; }
 
   function route() {
-    var parts = (location.hash.replace(/^#\/?/, '') || '').split('/');
-    var r = parts[0] || '';
+    var parts = current.replace(/^#\/?/, '').split('/'), r = parts[0] || '';
+    if (r === 'search') {
+      var text = decode(current.replace(/^#\/search\/?/, ''));
+      if (q.value.trim() !== text.trim()) q.value = text;
+    } else q.value = '';
+    qClear.hidden = !q.value;
     if (r === '') home();
+    else if (r === 'search') search(text);
     else if (r === 'role') role(parts[1]);
     else if (r === 'agents') allAgents();
     else if (r === 'agent' && agentsById[parts[1]]) agentPage(agentsById[parts[1]], parts[2]);
-    else if (r === 'custom' && LIB.custom[parts[1]]) { var a = LIB.custom[parts[1]].agents.filter(function (x) { return x.id === parts[2]; })[0]; if (a) agentPage(a, null, parts[1]); else notFound(); }
-    else if (r === 'get') getAgent(decodeURIComponent(parts[1] || ''));
+    else if (r === 'custom') customPage(parts[1] || '', parts[2]);
+    else if (r === 'get') getAgent(decode(parts[1] || ''));
     else if (r === 'my') my();
-    else if (r === 'for') openSpace(parts[1]);
+    else if (r === 'for' && parts[1]) openSpace(parts[1]);
     else notFound();
-    updateTabs(r === 'my' ? 'my' : r);
-    window.scrollTo(0, 0);
+    document.body.classList.toggle('has-cta', !!cta.firstChild);
+    updateTabs();
   }
-  window.addEventListener('hashchange', route);
-  route();
+
+  if (!history.state) history.replaceState({ from: null }, '');
+  show(true);
+  refreshSpaces();
 })();
 </script>
 </body>
