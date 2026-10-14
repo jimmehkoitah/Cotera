@@ -69,6 +69,11 @@ logo = LOGO.read_text().strip()
 html = (HERE / 'template.html').read_text().replace('__LOGO__', logo).replace('__DATA__', data)
 DIST.mkdir(exist_ok=True)
 (DIST / 'index.html').write_text(html, encoding='utf-8')
+shutil.rmtree(DIST / 'fonts', ignore_errors=True)
+shutil.copytree(HERE / 'assets' / 'fonts', DIST / 'fonts')  # brand fonts and their licences
+mark = re.search(r'<defs>.*?</defs>\s*<rect[^>]*/>\s*<g id="icon".*?</g>', logo, re.S).group(0)  # the logo's square mark
+(DIST / 'favicon.svg').write_text(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 37.14 200 200">{mark}</svg>', encoding='utf-8')
+shutil.copy(HERE / 'assets' / 'apple-touch-icon.png', DIST / 'apple-touch-icon.png')
 shutil.rmtree(DIST / 'for', ignore_errors=True)  # pages removed from custom.json stop being served
 (DIST / 'for').mkdir()
 for code, space in custom.items():

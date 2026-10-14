@@ -35,6 +35,8 @@ Each private page is published as its own file, `dist/for/<code>.json`, and is n
 python3 build.py        # writes dist/index.html and dist/for/*.json
 ```
 
+The build also copies the brand fonts from `assets/fonts` (Inter, Newsreader and DM Mono as small Latin WOFF2 files, SIL Open Font License) to `dist/fonts`, writes `dist/favicon.svg` from the Cotera logo mark, and copies `assets/apple-touch-icon.png`. The site makes no third-party requests.
+
 ## Prototype limits
 
 - The request form shows a confirmation but does not send anywhere yet. Next step: store requests and notify you.
