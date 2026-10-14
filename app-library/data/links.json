@@ -1,0 +1,3 @@
+{
+  "_how_to": "Map an agent ID to the link of that agent in your central Cotera instance, e.g. \"A01\": \"https://...\". Agents with a link show 'Open in Cotera'; the rest show 'Get this agent'. Rebuild after editing: python3 build.py"
+}
