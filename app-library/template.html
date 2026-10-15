@@ -547,7 +547,7 @@ window.LIB = __DATA__;
     });
     var mine = saved.map(function (id) { return agentsById[id]; }).filter(Boolean);
     html += '<section class="section"><h2>Saved</h2>' + (mine.length ? '<div class="grid">' + mine.map(function (a) { return agentCard(a); }).join('') + '</div>' :
-      '<div class="empty"><h3>Nothing saved yet</h3><p class="muted">Tap the heart on any agent to keep it here. If someone from Cotera made agents for you, open the private link they sent and they\'ll appear on this page.</p><p><a class="btn ghost small" href="#/">Browse the library</a></p></div>') + '</section>';
+      '<div class="empty"><h3>Nothing saved yet</h3><p class="muted">Tap the heart on any agent to keep it here, on this device.</p><p><a class="btn ghost small" href="#/">Browse the library</a></p></div>') + '</section>';
     view.innerHTML = html;
   }
 
