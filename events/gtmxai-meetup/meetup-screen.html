@@ -1,0 +1,355 @@
+<title>GTMxAI Meetup Screen</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Inter:wght@400;500&family=Newsreader:opsz@6..72&display=swap">
+<style>
+/* Layout: a fixed 1920x1080 stage scaled to fit any screen. Left: rotating slides in priority order.
+   Right: the Work Jam playlist panel, on every slide. Bottom: slide names with a 20s progress bar.
+   Single light look on purpose: the Cotera logo may only sit on ivory or white. */
+:root {
+  color-scheme: light;
+  --ivory: #f7f5f0;
+  --surface: #ffffff;
+  --rule: #e6e2d9;
+  --blue: #385295;
+  --on-blue: #ffffff;
+  --blue-soft: #e8ecf6;
+  --ink: #1e2433;
+  --slate: #576280;
+  --label: #6b7590;
+  --serif: "Newsreader", Georgia, serif;
+  --sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --mono: "DM Mono", ui-monospace, Menlo, monospace;
+  --dwell: 20s;
+}
+html, body { height: 100%; }
+body {
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: var(--sans);
+  overflow: hidden;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+  box-sizing: border-box;
+}
+body.idle { cursor: none; }
+.viewport { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.stage {
+  position: absolute; left: 50%; top: 50%;
+  width: 1920px; height: 1080px;
+  transform-origin: 0 0;
+  display: grid;
+  grid-template-columns: 1fr 540px;
+  grid-template-rows: auto 1fr auto;
+  column-gap: 72px;
+  padding: 56px 88px 48px;
+  box-sizing: border-box;
+}
+
+/* Header */
+.top { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; padding-bottom: 28px; border-bottom: 1.5px solid var(--rule); }
+.top img { height: 62px; width: auto; display: block; }
+.event { text-align: right; display: grid; gap: 6px; }
+.event .name { font-family: var(--mono); font-size: 22px; letter-spacing: 3px; color: var(--blue); }
+.event .sub { font-size: 20px; color: var(--slate); }
+
+/* Slides */
+.deck { position: relative; grid-column: 1; grid-row: 2; min-width: 0; }
+.slide {
+  position: absolute; inset: 0;
+  padding-top: 64px;
+  display: flex; flex-direction: column; gap: 36px;
+  opacity: 0; visibility: hidden;
+  transition: opacity .7s ease, transform .7s ease, visibility 0s linear .7s;
+  transform: translateY(14px);
+}
+.slide.on { opacity: 1; visibility: visible; transform: none; transition: opacity .7s ease .15s, transform .7s ease .15s, visibility 0s; }
+.eyebrow { font-family: var(--mono); font-size: 22px; letter-spacing: 3px; text-transform: uppercase; color: var(--label); display: flex; align-items: center; gap: 20px; }
+.eyebrow::after { content: ""; flex: 1; height: 1.5px; background: var(--rule); }
+h1, h2 { font-family: var(--serif); font-weight: 400; color: var(--blue); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+h1 { font-size: 104px; line-height: 1.02; max-width: 15ch; }
+h2 { font-size: 72px; line-height: 1.06; max-width: 22ch; }
+.lede { font-size: 32px; line-height: 1.45; color: var(--slate); margin: 0; max-width: 46ch; text-wrap: pretty; }
+.lede b { color: var(--ink); font-weight: 500; }
+
+/* One shared strip, divided by rules */
+.strip { display: grid; grid-template-columns: repeat(3, 1fr); border: 1.5px solid var(--rule); border-radius: 16px; background: var(--surface); margin-top: auto; margin-bottom: 40px; }
+.strip > div { padding: 30px 34px; display: grid; gap: 10px; align-content: start; }
+.strip > div + div { border-left: 1.5px solid var(--rule); }
+.strip h3 { font-family: var(--serif); font-weight: 400; font-size: 36px; color: var(--blue); margin: 0; }
+.strip p { margin: 0; font-size: 23px; line-height: 1.4; color: var(--slate); }
+
+/* How it works: five layers, read bottom to top */
+.layers-wrap { display: grid; grid-template-columns: 1fr 420px; gap: 56px; align-items: start; }
+.layers { display: flex; flex-direction: column-reverse; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.layers li { display: grid; grid-template-columns: 40px 1fr; align-items: center; gap: 18px; padding: 13px 26px; border: 1.5px solid var(--rule); border-radius: 14px; background: var(--surface); }
+.layers li:first-child { background: var(--blue-soft); border-color: var(--blue-soft); }
+.layers li:last-child { background: var(--blue); border-color: var(--blue); }
+.layers li:last-child .n, .layers li:last-child strong, .layers li:last-child span { color: var(--on-blue); }
+.layers .n { font-family: var(--mono); font-size: 24px; color: var(--blue); }
+.layers strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 31px; color: var(--ink); line-height: 1.15; }
+.layers span { display: block; font-size: 21px; color: var(--slate); margin-top: 2px; }
+.slide.how { gap: 30px; }
+.slide.how h2 { max-width: none; }
+.nowrap { white-space: nowrap; }
+.side-note { font-size: 27px; line-height: 1.5; color: var(--slate); margin: 0; text-wrap: pretty; }
+.side-note b { color: var(--blue); font-weight: 500; }
+
+/* Grids of short answers */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 64px; }
+.grid2 > div { padding: 26px 0; border-top: 1.5px solid var(--rule); display: grid; gap: 10px; align-content: start; }
+.grid2 h3 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 36px; color: var(--blue); line-height: 1.15; }
+.grid2 p { margin: 0; font-size: 24px; line-height: 1.42; color: var(--slate); }
+.grid2 p b { color: var(--ink); font-weight: 500; }
+.qa h3 { font-size: 33px; }
+.qa h3::before { content: ""; display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: var(--blue); margin-right: 16px; vertical-align: 0.2em; }
+.grid3 { grid-template-columns: 1fr 1fr 1fr; gap: 0 48px; }
+.grid3 h3 { font-size: 32px; }
+.grid3 p { font-size: 22px; }
+
+/* Work Jam panel */
+.jam {
+  grid-column: 2; grid-row: 2 / 4;
+  margin-top: 48px;
+  background: var(--blue); color: var(--on-blue);
+  border-radius: 28px;
+  padding: 44px 48px 40px;
+  display: flex; flex-direction: column; gap: 22px;
+  box-sizing: border-box;
+}
+.jam .tag { display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 20px; letter-spacing: 3px; text-transform: uppercase; opacity: .85; }
+.eq { display: flex; align-items: flex-end; gap: 5px; height: 28px; }
+.eq i { width: 6px; height: 100%; border-radius: 3px; background: var(--on-blue); transform-origin: bottom; animation: eq 1.1s ease-in-out infinite; }
+.eq i:nth-child(2) { animation-delay: -.35s; animation-duration: .9s; }
+.eq i:nth-child(3) { animation-delay: -.7s; animation-duration: 1.3s; }
+.eq i:nth-child(4) { animation-delay: -.2s; animation-duration: 1s; }
+@keyframes eq { 0%, 100% { transform: scaleY(.25); } 50% { transform: scaleY(1); } }
+.jam h2 { color: var(--on-blue); font-size: 60px; line-height: 1.02; }
+.jam p { margin: 0; font-size: 24px; line-height: 1.45; }
+.qr { background: var(--surface); border-radius: 22px; padding: 18px; align-self: center; width: 360px; height: 360px; box-sizing: content-box; }
+.qr svg { display: block; width: 100%; height: 100%; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0; padding: 0; list-style: none; counter-reset: s; margin-top: auto; }
+.steps li { counter-increment: s; font-size: 19px; line-height: 1.3; display: grid; gap: 8px; align-content: start; }
+.steps li::before { content: counter(s); font-family: var(--mono); font-size: 18px; width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--on-blue); display: grid; place-items: center; }
+
+/* Footer: slide names + progress */
+.foot { grid-column: 1; grid-row: 3; display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
+.dots { display: flex; gap: 28px; margin: 0; padding: 0; list-style: none; }
+.dots button { all: unset; cursor: pointer; display: grid; gap: 12px; font-family: var(--mono); font-size: 18px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--label); }
+.dots button:focus-visible { outline: 2px solid var(--blue); outline-offset: 6px; border-radius: 4px; }
+.dots .bar { display: block; height: 4px; width: 100%; min-width: 120px; border-radius: 2px; background: var(--rule); overflow: hidden; }
+.dots .bar::after { content: ""; display: block; height: 100%; width: 100%; background: var(--blue); transform: scaleX(0); transform-origin: left; }
+.dots .done .bar::after { transform: scaleX(1); opacity: .35; }
+.dots .cur { color: var(--blue); }
+.dots .cur .bar::after { animation: fill var(--dwell) linear forwards; }
+body.paused .dots .cur .bar::after { animation-play-state: paused; }
+@keyframes fill { to { transform: scaleX(1); } }
+.site { font-size: 22px; font-weight: 500; color: var(--blue); white-space: nowrap; }
+.pause-note { position: absolute; right: 88px; top: 150px; font-family: var(--mono); font-size: 18px; letter-spacing: 2px; color: var(--slate); background: var(--surface); border: 1.5px solid var(--rule); border-radius: 999px; padding: 8px 18px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .slide, .slide.on { transition: none; transform: none; }
+  .eq i { animation: none; transform: scaleY(.6); }
+}
+</style>
+
+<div class="viewport" id="viewport">
+<div class="stage" id="stage">
+
+  <header class="top">
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4NjQuNCAyODAiPgo8ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIxNzQuNDEiIHkxPSIyMDguMDMiIHgyPSIyNS4yNiIgeTI9IjY1Ljk0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMzIyZjgyIj48L3N0b3A+PHN0b3Agb2Zmc2V0PSIwLjE5IiBzdG9wLWNvbG9yPSIjNDAzZmE0Ij48L3N0b3A+PHN0b3Agb2Zmc2V0PSIwLjQyIiBzdG9wLWNvbG9yPSIjNGY1MGM1Ij48L3N0b3A+PHN0b3Agb2Zmc2V0PSIwLjY0IiBzdG9wLWNvbG9yPSIjNWE1Y2RlIj48L3N0b3A+PHN0b3Agb2Zmc2V0PSIwLjgzIiBzdG9wLWNvbG9yPSIjNjA2M2VjIj48L3N0b3A+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNjM2NmYyIj48L3N0b3A+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+CjxyZWN0IHg9IjAiIHk9IjM3LjE0IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcng9IjMyIiBmaWxsPSJ1cmwoI2cpIj48L3JlY3Q+CjxnIGlkPSJpY29uIiBmaWxsPSIjZmZmZmZmIj48cGF0aCBkPSJNNjQuNjQsMTc3LjI3YzkuMy0xMS4yMywyMS43OS0xNy40MSwzNS4xOC0xNy40MXMyNS44OCw2LjE4LDM1LjE4LDE3LjQxYy4wNiwuMDcsLjExLC4xMywuMTcsLjIsLjU0LC42NiwxLjUzLC43MiwyLjE0LC4xMWwxMC40OS0xMC40OWMuNDItLjQyLC41NC0xLjA3LC4yOS0xLjYyLDAsMC0zMS41MS0xMDYuMDgtNDguMDgtMTA2LjA4LTE2LjU3LDAtNDguMDgsMTA2LjA4LTQ4LjA4LDEwNi4wOC0uMjUsLjU1LS4xMywxLjE5LC4yOSwxLjYybDEwLjI5LDEwLjI5Yy42LC42LDEuNTksLjU1LDIuMTMtLjFoLjAxWiI+PC9wYXRoPjxwYXRoIGQ9Ik05OS44MSwxNzUuODRjLS4xLDAtLjIsMC0uMywwLTE0LjIsLjE2LTIxLjE2LDE3LjQtMTEuMTIsMjcuNDRsMTEuNiwxMS42LDExLjMzLTExLjMzYzEwLjE0LTEwLjE0LDMuMTEtMjcuNTQtMTEuMjItMjcuNy0uMSwwLS4yLDAtLjMsMFoiPjwvcGF0aD48L2c+CjxnIGlkPSJ3b3JkbWFyayIgZmlsbD0iIzMyMmY4MiIgZmlsbC1ydWxlPSJub256ZXJvIj48cGF0aCBkPSJNMjk1LjA2IDIwNy4wM1EyNzYuMjIgMjA3LjAzIDI2Mi4zNiAxOTguNjVRMjQ4LjQ5IDE5MC4yNyAyNDAuOTIgMTc1LjMxUTIzMy4zNSAxNjAuMzUgMjMzLjM1IDE0MC40N1EyMzMuMzUgMTIwLjM3IDI0MC45MiAxMDUuMjlRMjQ4LjQ5IDkwLjIxIDI2Mi4zNiA4MS44OVEyNzYuMjIgNzMuNTcgMjk1LjA2IDczLjU3UTMwNS44IDczLjU3IDMxNS4wNSA3Ni4zNFEzMjQuMjkgNzkuMTIgMzMxLjU3IDg0LjM3UTMzOC44NSA4OS42MyAzNDMuNzYgOTcuMTRRMzQ4LjY3IDEwNC42NSAzNTAuNzUgMTE0LjEzTDMyMi42NyAxMjAuMDJRMzIxLjQgMTE1LjA1IDMxOS4wMyAxMTAuOTVRMzE2LjY2IDEwNi44NSAzMTMuMiAxMDMuOTZRMzA5LjczIDEwMS4wNyAzMDUuMjIgOTkuNTFRMzAwLjcyIDk3Ljk1IDI5NS4yOSA5Ny45NVEyODQuNzcgOTcuOTUgMjc3Ljg0IDEwMy41NlEyNzAuOTEgMTA5LjE2IDI2Ny40NCAxMTguNjlRMjYzLjk3IDEyOC4yMiAyNjMuOTcgMTQwLjM2UTI2My45NyAxNTIuMjYgMjY3LjQ0IDE2MS44NVEyNzAuOTEgMTcxLjQ0IDI3Ny44NCAxNzcuMDRRMjg0Ljc3IDE4Mi42NSAyOTUuMjkgMTgyLjY1UTMwMC44MyAxODIuNjUgMzA1LjQgMTgxLjAzUTMwOS45NiAxNzkuNDEgMzEzLjQ5IDE3Ni40MVEzMTcuMDEgMTczLjQgMzE5LjQ0IDE2OS4xM1EzMjEuODYgMTY0Ljg1IDMyMy4wMiAxNTkuNjVMMzUxLjEgMTY1LjU1UTM0OS4wMiAxNzUuMjUgMzQ0LjExIDE4Mi44OFEzMzkuMTkgMTkwLjUgMzMxLjg2IDE5NS44OFEzMjQuNTIgMjAxLjI1IDMxNS4yMiAyMDQuMTRRMzA1LjkyIDIwNy4wMyAyOTUuMDYgMjA3LjAzWiI+PC9wYXRoPjxwYXRoIGQ9Ik00MTUuMTYgMjA3LjAzUTM5Ni4zMiAyMDcuMDMgMzgyLjQ2IDE5OC42NVEzNjguNTkgMTkwLjI3IDM2MS4wMiAxNzUuMzFRMzUzLjQ1IDE2MC4zNSAzNTMuNDUgMTQwLjQ3UTM1My40NSAxMjAuMzcgMzYxLjAyIDEwNS4yOVEzNjguNTkgOTAuMjEgMzgyLjQ2IDgxLjg5UTM5Ni4zMiA3My41NyA0MTUuMTYgNzMuNTdRNDM0LjExIDczLjU3IDQ0Ny45NyA4MS44OVE0NjEuODQgOTAuMjEgNDY5LjQgMTA1LjI5UTQ3Ni45NyAxMjAuMzcgNDc2Ljk3IDE0MC40N1E0NzYuOTcgMTYwLjM1IDQ2OS40IDE3NS4zMVE0NjEuODQgMTkwLjI3IDQ0Ny45NyAxOTguNjVRNDM0LjExIDIwNy4wMyA0MTUuMTYgMjA3LjAzWk00MTUuMTYgMTgyLjY1UTQyNS42NyAxODIuNjUgNDMyLjY2IDE3Ni45OVE0MzkuNjUgMTcxLjMyIDQ0My4wNiAxNjEuNzNRNDQ2LjQ3IDE1Mi4xNCA0NDYuNDcgMTQwLjM2UTQ0Ni40NyAxMjguNDYgNDQzLjA2IDExOC44N1E0MzkuNjUgMTA5LjI3IDQzMi42NiAxMDMuNjFRNDI1LjY3IDk3Ljk1IDQxNS4xNiA5Ny45NVE0MDQuNjQgOTcuOTUgMzk3Ljc3IDEwMy42MVEzOTAuODkgMTA5LjI3IDM4Ny40OCAxMTguODFRMzg0LjA3IDEyOC4zNCAzODQuMDcgMTQwLjM2UTM4NC4wNyAxNTIuMTQgMzg3LjQ4IDE2MS43M1EzOTAuODkgMTcxLjMyIDM5Ny43NyAxNzYuOTlRNDA0LjY0IDE4Mi42NSA0MTUuMTYgMTgyLjY1WiI+PC9wYXRoPjxwYXRoIGQ9Ik01NDMuODggNzUuMTlWOTguNzZINDcwLjUxVjc1LjE5Wk00ODguODggNDQuNDVINTE4LjkzVjE2Ny45N1E1MTguOTMgMTc1LjAyIDUyMS45MyAxNzguMzFRNTI0LjkzIDE4MS42MSA1MzEuNzUgMTgxLjYxUTUzMy44MyAxODEuNjEgNTM3LjI0IDE4MS4wOVE1NDAuNjUgMTgwLjU3IDU0Mi43MyAxODAuMTFMNTQ3LjQ3IDIwMy4zM1E1NDIuNSAyMDQuODMgNTM3LjMgMjA1LjQ3UTUzMi4xIDIwNi4xIDUyNy4zNiAyMDYuMVE1MDguNzYgMjA2LjEgNDk4LjgyIDE5Ni44NlE0ODguODggMTg3LjYyIDQ4OC44OCAxNzAuNTFaIj48L3BhdGg+PHBhdGggZD0iTTYwOS45OCAyMDcuMDNRNTkwLjQ1IDIwNy4wMyA1NzYuNDEgMTk4LjgyUTU2Mi4zNyAxOTAuNjIgNTU0LjggMTc1LjcxUTU0Ny4yMyAxNjAuODEgNTQ3LjIzIDE0MC41OVE1NDcuMjMgMTIwLjYgNTU0LjY5IDEwNS41OFE1NjIuMTQgOTAuNTYgNTc1LjgzIDgyLjA2UTU4OS41MiA3My41NyA2MDguMDEgNzMuNTdRNjE5LjggNzMuNTcgNjMwLjQ5IDc3LjM4UTY0MS4xNyA4MS4yIDY0OS40MyA4OS4xN1E2NTcuNyA5Ny4xNCA2NjIuMzggMTA5LjQ1UTY2Ny4wNiAxMjEuNzUgNjY3LjA2IDEzOC43NFYxNDguMjFINTYxLjQ1VjEyNy43Nkg2NTIuMTVMNjM4LjA1IDEzMy43N1E2MzguMDUgMTIyLjkxIDYzNC43IDExNC42NVE2MzEuMzUgMTA2LjM5IDYyNC43MSAxMDEuNzZRNjE4LjA2IDk3LjE0IDYwOC4xMyA5Ny4xNFE1OTguMTkgOTcuMTQgNTkxLjI2IDEwMS44MlE1ODQuMzIgMTA2LjUgNTgwLjY4IDExNC4zUTU3Ny4wNCAxMjIuMSA1NzcuMDQgMTMxLjY5VjE0NS43OVE1NzcuMDQgMTU4LjA0IDU4MS4yIDE2Ni40N1E1ODUuMzYgMTc0LjkxIDU5Mi44NyAxNzkuMThRNjAwLjM5IDE4My40NiA2MTAuMzIgMTgzLjQ2UTYxNi45MSAxODMuNDYgNjIyLjI4IDE4MS41NVE2MjcuNjUgMTc5LjY0IDYzMS41OCAxNzUuODlRNjM1LjUxIDE3Mi4xMyA2MzcuNDggMTY2LjdMNjY1LjA5IDE3Mi4zNlE2NjEuOTcgMTgyLjc2IDY1NC40NiAxOTAuNTZRNjQ2Ljk1IDE5OC4zNiA2MzUuNjggMjAyLjY5UTYyNC40MiAyMDcuMDMgNjA5Ljk4IDIwNy4wM1oiPjwvcGF0aD48cGF0aCBkPSJNNjc4LjQyIDIwNC4zN1Y3NS4xOUg3MDcuNTNWOTYuOEg3MDguOTJRNzEyLjM5IDg1LjU5IDcyMS4wNSA3OS41MlE3MjkuNzIgNzMuNDYgNzQwLjgxIDczLjQ2UTc0My4zNSA3My40NiA3NDYuNDcgNzMuNjlRNzQ5LjU5IDczLjkyIDc1MS43OSA3NC4yNlYxMDEuODhRNzQ5Ljk0IDEwMS4zIDc0NS43OCAxMDAuODRRNzQxLjYyIDEwMC4zOCA3MzcuNTggMTAwLjM4UTcyOS4yNiAxMDAuMzggNzIyLjYxIDEwMy45NlE3MTUuOTcgMTA3LjU0IDcxMi4yMSAxMTMuODRRNzA4LjQ2IDEyMC4xNCA3MDguNDYgMTI4LjM0VjIwNC4zN1oiPjwvcGF0aD48cGF0aCBkPSJNNzkyLjI2IDIwNy4wM1E3ODAuMDEgMjA3LjAzIDc3MC4xOSAyMDIuNThRNzYwLjM3IDE5OC4xMyA3NTQuNyAxODkuNDZRNzQ5LjA0IDE4MC44IDc0OS4wNCAxNjguMDlRNzQ5LjA0IDE1Ny4xMSA3NTMuMTQgMTQ5Ljk1UTc1Ny4yNSAxNDIuNzggNzY0LjI0IDEzOC41MVE3NzEuMjMgMTM0LjIzIDc4MC4wMSAxMzIuMDRRNzg4Ljc5IDEyOS44NCA3OTguMjYgMTI4LjkyUTgwOS40NyAxMjcuNjUgODE2LjUyIDEyNi43MlE4MjMuNTcgMTI1LjggODI2Ljg2IDEyMy43MlE4MzAuMTYgMTIxLjY0IDgzMC4xNiAxMTcuMjVWMTE2LjY3UTgzMC4xNiAxMTAuMzEgODI3LjYxIDEwNS44N1E4MjUuMDcgMTAxLjQyIDgyMC4wNSA5OS4wNVE4MTUuMDIgOTYuNjggODA3LjYyIDk2LjY4UTgwMC4xMSA5Ni42OCA3OTQuNjIgOTguOTlRNzg5LjE0IDEwMS4zIDc4NS42NyAxMDVRNzgyLjIgMTA4LjcgNzgwLjU5IDExMi45N0w3NTIuNzQgMTA3LjMxUTc1Ni41NSA5NS44NyA3NjQuNTIgODguNDJRNzcyLjUgODAuOTcgNzgzLjUzIDc3LjI3UTc5NC41NyA3My41NyA4MDcuNTEgNzMuNTdRODE2LjY0IDczLjU3IDgyNS45NCA3NS43MVE4MzUuMjQgNzcuODUgODQyLjk4IDgyLjkzUTg1MC43MiA4OC4wMSA4NTUuNDYgOTYuNTZRODYwLjIgMTA1LjEyIDg2MC4yIDExOC4wNlYyMDQuMzdIODMxLjQzVjE4Ni41OEg4MzAuMjdRODI3LjM4IDE5Mi4wMSA4MjIuMzYgMTk2LjY5UTgxNy4zMyAyMDEuMzcgODA5Ljg4IDIwNC4yUTgwMi40MiAyMDcuMDMgNzkyLjI2IDIwNy4wM1pNODAwIDE4NC43M1E4MDkuMzYgMTg0LjczIDgxNi4xMiAxODEuMDNRODIyLjg4IDE3Ny4zMyA4MjYuNjMgMTcxLjI3UTgzMC4zOSAxNjUuMiA4MzAuMzkgMTU4LjA0VjE0Mi43OFE4MjguODggMTQzLjk0IDgyNS4zNiAxNDQuOThRODIxLjg0IDE0Ni4wMiA4MTcuNSAxNDYuODNRODEzLjE3IDE0Ny42NCA4MDguOTUgMTQ4LjIxUTgwNC43NCAxNDguNzkgODAxLjg1IDE0OS4xNFE3OTUuMTQgMTUwLjA2IDc4OS43MSAxNTIuMTRRNzg0LjI4IDE1NC4yMiA3ODEuMjIgMTU3Ljk4UTc3OC4xNiAxNjEuNzMgNzc4LjE2IDE2Ny43NFE3NzguMTYgMTczLjI5IDc4MC45OSAxNzcuMDRRNzgzLjgyIDE4MC44IDc4OC43MyAxODIuNzZRNzkzLjY0IDE4NC43MyA4MDAgMTg0LjczWiI+PC9wYXRoPjwvZz4KPC9zdmc+" alt="Cotera">
+    <div class="event">
+      <div class="name">GTMXAI MEETUP</div>
+      <div class="sub">Building in Cotera</div>
+    </div>
+  </header>
+
+  <main class="deck" id="deck" aria-live="polite">
+
+    <section class="slide on" data-name="The big idea">
+      <div class="eyebrow">What Cotera does</div>
+      <h1>Your data stays where it is.</h1>
+      <p class="lede">Cotera turns it into GTM action, and <b>Coco, our AI agent,</b> lets your team do it by just asking.</p>
+      <div class="strip">
+        <div><h3>Audiences</h3><p>Built from the data you already have in your warehouse.</p></div>
+        <div><h3>Reports</h3><p>One live picture of sales, marketing and product signals.</p></div>
+        <div><h3>Workflows</h3><p>Automations that push results into the GTM tools you use.</p></div>
+      </div>
+    </section>
+
+    <section class="slide how" data-name="How it works">
+      <div class="eyebrow">How it works</div>
+      <h2>Five layers, read from the bottom up.</h2>
+      <div class="layers-wrap">
+        <ol class="layers">
+          <li><span class="n">1</span><div><strong>Your warehouse</strong><span>Snowflake, BigQuery, Redshift, Postgres, DuckDB</span></div></li>
+          <li><span class="n">2</span><div><strong>Query engine</strong><span>Runs inside your warehouse, nothing copied out</span></div></li>
+          <li><span class="n">3</span><div><strong>Models and workflows</strong><span>Audiences, scores and automations</span></div></li>
+          <li><span class="n">4</span><div><strong>Integrations</strong><span>Apollo, Braze, Shopify, Slack and more</span></div></li>
+          <li><span class="n">5</span><div><strong>The app and Coco</strong><span>Click through it, or just ask</span></div></li>
+        </ol>
+        <p class="side-note"><b>Your data never leaves your warehouse.</b> Cotera reads it where it is, turns it into audiences and automations, pushes the results into your GTM tools, and lets your team drive all of it from the app or by asking Coco.</p>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Your CRM">
+      <div class="eyebrow">New: your CRM as a source of truth</div>
+      <h2>Stop stitching three dashboards together.</h2>
+      <p class="lede">Connect your CRM and pipeline, contacts, campaigns and activity sit next to product and billing data <b>as one live picture.</b></p>
+      <div class="grid2">
+        <div><h3>One account view</h3><p>Sales, marketing and product signals in one place, not three tabs.</p></div>
+        <div><h3>Agents that act on it</h3><p>Flag a stalling deal, enrich a lead or kick off a play, grounded in live CRM data.</p></div>
+        <div><h3>No stale exports</h3><p>The CRM stays connected and in sync, not copied into yet another tool.</p></div>
+        <div><h3>Results pushed back</h3><p>Segments, scores and next actions flow back to the tools your team already uses.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Quick answers">
+      <div class="eyebrow">Questions you might have</div>
+      <h2>The short answers.</h2>
+      <div class="grid2 qa">
+        <div><h3>Do we have to move our data?</h3><p><b>No.</b> Cotera works on top of the warehouse you already have.</p></div>
+        <div><h3>What exactly is Coco?</h3><p>Our AI agent. Anything a person can do in the app, Coco can do in plain language.</p></div>
+        <div><h3>Is it only for technical people?</h3><p><b>No.</b> The app and Coco are built for GTM teams. Engineers come in for custom work.</p></div>
+        <div><h3>How fast can we build something?</h3><p>An audience, a report or a workflow is <b class="nowrap">same-day.</b> Deep custom work is an engineering project.</p></div>
+        <div><h3>Is it enterprise-ready?</h3><p>Single sign-on, role-based permissions, and it runs on Google Cloud.</p></div>
+        <div><h3>Are the automations reliable?</h3><p>Long-running workflows resume safely after a restart, so jobs don't silently drop.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Under the hood">
+      <div class="eyebrow">For the technical crowd</div>
+      <h2>Under the hood.</h2>
+      <div class="grid2 grid3">
+        <div><h3>ERA</h3><p>Our query layer. Write the logic once and it compiles to each warehouse's own SQL.</p></div>
+        <div><h3>Warehouse-native</h3><p>Queries run inside your warehouse. "Your data stays put" is the architecture.</p></div>
+        <div><h3>Durable execution</h3><p>Multi-step workflows are journaled, so they resume after a restart.</p></div>
+        <div><h3>Coco uses real tools</h3><p>The agent calls the same actions the UI exposes. It grows with the product.</p></div>
+        <div><h3>Model-agnostic</h3><p>Frontier models through one gateway, never locked to a single vendor.</p></div>
+        <div><h3>Fully isolated tenants</h3><p>One platform, with separate data and logic for every customer.</p></div>
+      </div>
+    </section>
+
+  </main>
+
+  <aside class="jam" aria-label="Cotera Work Jam playlist">
+    <div class="tag"><span>Now playing</span><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></div>
+    <h2>Cotera Work Jam</h2>
+    <p>Help us pick tonight's music. Scan to open our playlist in Spotify and add a song or two.</p>
+    <a class="qr" href="https://open.spotify.com/playlist/7pOxEqcPbV8M3srWmThZWL?pt=daade24c0f1daca52d6895303992064b" target="_blank" rel="noopener" aria-label="Open the Cotera Work Jam playlist in Spotify"><svg role="img" aria-label="QR code for the Cotera Work Jam Spotify playlist" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 49 49"><path fill="#fff" d="M0 0h49v49h-49z"/><path stroke="#1e2433" d="M4 4.5h7m2 0h1m2 0h2m1 0h1m1 0h5m1 0h1m1 0h1m2 0h1m1 0h3m1 0h7m-41 1h1m5 0h1m3 0h2m2 0h1m1 0h2m3 0h1m2 0h4m2 0h1m1 0h1m1 0h1m5 0h1m-41 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m2 0h3m1 0h2m2 0h1m1 0h2m1 0h1m3 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m1 0h3m5 0h1m4 0h1m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m1 0h4m1 0h2m2 0h6m5 0h2m1 0h2m1 0h1m1 0h3m1 0h1m-41 1h1m5 0h1m1 0h1m1 0h1m2 0h4m3 0h1m1 0h1m1 0h2m1 0h3m2 0h1m1 0h1m5 0h1m-41 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-33 1h2m1 0h1m4 0h1m2 0h3m2 0h1m1 0h2m3 0h2m-33 1h1m1 0h5m3 0h1m2 0h1m2 0h3m3 0h8m4 0h5m-38 1h1m2 0h2m1 0h1m1 0h1m2 0h3m1 0h5m1 0h2m2 0h1m1 0h1m2 0h2m1 0h3m1 0h1m1 0h1m-40 1h1m1 0h4m1 0h1m2 0h1m1 0h1m2 0h1m3 0h3m2 0h1m1 0h1m2 0h1m1 0h2m2 0h1m2 0h1m-40 1h3m1 0h2m2 0h1m2 0h2m2 0h1m3 0h4m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m1 0h2m-37 1h1m1 0h5m1 0h2m2 0h1m2 0h1m2 0h2m2 0h2m1 0h1m4 0h3m1 0h1m1 0h4m-41 1h1m1 0h2m1 0h1m3 0h1m11 0h2m3 0h2m2 0h2m2 0h3m-37 1h3m2 0h2m1 0h4m4 0h1m3 0h2m1 0h3m1 0h1m2 0h1m2 0h1m1 0h3m-31 1h2m3 0h1m1 0h2m2 0h1m2 0h3m2 0h2m3 0h1m2 0h1m2 0h1m1 0h2m-41 1h3m1 0h1m1 0h1m4 0h1m2 0h1m1 0h3m1 0h1m1 0h4m1 0h3m3 0h1m1 0h1m1 0h4m-39 1h1m12 0h2m2 0h1m3 0h1m2 0h1m3 0h3m1 0h4m1 0h2m-41 1h1m5 0h3m1 0h1m2 0h4m1 0h1m1 0h1m1 0h1m4 0h1m1 0h1m3 0h1m2 0h3m-38 1h1m1 0h2m2 0h2m1 0h2m3 0h2m3 0h1m3 0h1m1 0h1m3 0h1m1 0h1m1 0h1m1 0h2m1 0h1m-40 1h1m1 0h1m1 0h1m1 0h1m5 0h1m1 0h1m3 0h1m1 0h3m4 0h4m1 0h1m2 0h1m4 0h1m-40 1h1m3 0h1m2 0h2m2 0h1m1 0h1m1 0h2m2 0h1m2 0h2m1 0h1m1 0h1m2 0h1m2 0h1m1 0h2m1 0h2m-41 1h3m2 0h2m2 0h1m2 0h1m1 0h2m1 0h1m3 0h1m2 0h1m2 0h2m1 0h1m1 0h1m3 0h2m-38 1h1m1 0h1m1 0h2m2 0h1m4 0h2m4 0h1m1 0h3m3 0h2m1 0h4m2 0h1m2 0h1m-39 1h1m1 0h1m1 0h2m1 0h2m2 0h2m3 0h1m6 0h4m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m-39 1h4m3 0h1m2 0h2m2 0h1m2 0h3m1 0h1m5 0h3m2 0h4m2 0h1m-41 1h1m1 0h1m2 0h2m1 0h4m1 0h1m2 0h1m3 0h1m3 0h1m2 0h1m1 0h1m2 0h4m3 0h1m-38 1h4m2 0h1m1 0h1m2 0h1m2 0h1m1 0h2m1 0h2m5 0h1m2 0h2m2 0h1m1 0h1m1 0h1m-40 1h2m1 0h1m1 0h5m1 0h5m1 0h1m4 0h1m2 0h2m2 0h1m1 0h3m3 0h4m-41 1h2m1 0h1m1 0h1m6 0h1m5 0h1m1 0h3m1 0h1m2 0h1m3 0h1m2 0h3m1 0h1m-39 1h1m1 0h5m1 0h3m2 0h1m1 0h3m1 0h1m7 0h1m4 0h3m1 0h2m-38 1h1m1 0h3m3 0h1m1 0h2m1 0h1m2 0h1m1 0h5m1 0h1m5 0h1m2 0h3m1 0h1m1 0h1m-40 1h1m2 0h1m2 0h1m1 0h1m3 0h1m2 0h1m1 0h4m1 0h1m2 0h5m1 0h6m1 0h3m-33 1h10m1 0h1m1 0h1m1 0h3m4 0h1m1 0h1m3 0h5m-41 1h7m2 0h4m2 0h1m1 0h1m2 0h2m2 0h5m2 0h2m1 0h1m1 0h1m-37 1h1m5 0h1m1 0h3m1 0h2m3 0h2m2 0h3m1 0h1m1 0h2m1 0h3m3 0h1m2 0h1m-40 1h1m1 0h3m1 0h1m1 0h3m2 0h1m2 0h1m3 0h2m4 0h2m1 0h1m2 0h8m-40 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-36 1h1m1 0h3m1 0h1m1 0h8m1 0h2m1 0h1m1 0h1m1 0h4m3 0h8m-39 1h1m5 0h1m2 0h2m6 0h1m1 0h1m1 0h1m1 0h2m1 0h2m4 0h1m3 0h1m2 0h1m-40 1h7m1 0h1m2 0h3m2 0h3m3 0h1m2 0h2m2 0h1m3 0h1m1 0h4"/></svg></a>
+    <ol class="steps">
+      <li>Scan with your phone camera</li>
+      <li>Open in Spotify</li>
+      <li>Tap Add to drop in a song</li>
+    </ol>
+  </aside>
+
+  <footer class="foot">
+    <ol class="dots" id="dots"></ol>
+    <span class="site">cotera.co</span>
+  </footer>
+
+  <div class="pause-note" id="pauseNote" hidden>PAUSED · PRESS SPACE</div>
+</div>
+</div>
+
+<script>
+(function () {
+  var DWELL = 20000;
+  var stage = document.getElementById('stage');
+  var viewport = document.getElementById('viewport');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var dots = document.getElementById('dots');
+  var pauseNote = document.getElementById('pauseNote');
+  var cur = 0, timer = null, paused = false, startedAt = 0, remaining = DWELL;
+
+  // Scale the 1920x1080 stage to fit the screen.
+  function fit() {
+    var w = viewport.clientWidth, h = viewport.clientHeight;
+    var s = Math.min(w / 1920, h / 1080);
+    stage.style.transform = 'scale(' + s + ') translate(-50%, -50%)';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+
+  slides.forEach(function (sl, i) {
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.id = 'go-' + i;
+    b.innerHTML = '<span>' + sl.dataset.name + '</span><span class="bar"></span>';
+    b.addEventListener('click', function () { show(i); });
+    li.appendChild(b);
+    dots.appendChild(li);
+  });
+  var buttons = dots.querySelectorAll('button');
+
+  function schedule(ms) {
+    clearTimeout(timer);
+    startedAt = Date.now();
+    remaining = ms;
+    if (!paused) timer = setTimeout(function () { show(cur + 1); }, ms);
+  }
+
+  function show(i) {
+    cur = (i + slides.length) % slides.length;
+    slides.forEach(function (sl, j) { sl.classList.toggle('on', j === cur); });
+    buttons.forEach(function (b, j) {
+      b.classList.remove('cur');
+      b.classList.toggle('done', j < cur);
+    });
+    // Restart the progress animation on the current label.
+    void buttons[cur].offsetWidth;
+    buttons[cur].classList.add('cur');
+    schedule(DWELL);
+  }
+
+  function togglePause() {
+    paused = !paused;
+    document.body.classList.toggle('paused', paused);
+    pauseNote.hidden = !paused;
+    if (paused) {
+      clearTimeout(timer);
+      remaining = Math.max(0, remaining - (Date.now() - startedAt));
+    } else {
+      schedule(remaining);
+    }
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { show(cur + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { show(cur - 1); }
+    else if (e.key === ' ') { e.preventDefault(); togglePause(); }
+    else if (e.key === 'f' || e.key === 'F') {
+      try {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else document.documentElement.requestFullscreen().catch(function () {});
+      } catch (err) {}
+    }
+  });
+
+  // Hide the cursor when nobody is touching the screen.
+  var idleTimer;
+  function wake() {
+    document.body.classList.remove('idle');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { document.body.classList.add('idle'); }, 3000);
+  }
+  document.addEventListener('mousemove', wake);
+  wake();
+
+  // Keep the screen on while the page is showing, where the browser allows it.
+  var lock = null;
+  function keepAwake() {
+    if (!('wakeLock' in navigator) || document.visibilityState !== 'visible') return;
+    navigator.wakeLock.request('screen').then(function (l) { lock = l; }).catch(function () {});
+  }
+  document.addEventListener('visibilitychange', keepAwake);
+  document.addEventListener('click', keepAwake);
+  keepAwake();
+
+  show(0);
+})();
+</script>
