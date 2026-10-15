@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Inter:wght@400;500&family=Newsreader:opsz@6..72&display=swap">
 <style>
 /* Layout: a fixed 1920x1080 stage scaled to fit any screen. Left: rotating slides in priority order.
-   Right: the Work Jam playlist panel, on every slide. Bottom: slide names with a 20s progress bar.
+   Right: the Work Jam playlist panel, on every slide. Bottom: slide names with a 15s progress bar.
    Single light look on purpose: the Cotera logo may only sit on ivory or white. */
 :root {
   color-scheme: light;
@@ -21,7 +21,7 @@
   --serif: "Newsreader", Georgia, serif;
   --sans: "Inter", "Helvetica Neue", Arial, sans-serif;
   --mono: "DM Mono", ui-monospace, Menlo, monospace;
-  --dwell: 20s;
+  --dwell: 15s;
 }
 html, body { height: 100%; }
 body {
@@ -257,7 +257,14 @@ body.paused .dots .cur .bar::after { animation-play-state: paused; }
 
 <script>
 (function () {
-  var DWELL = 20000;
+  // Seconds per slide: 15 by default, or ?seconds=N in the link (5 to 120).
+  var secs = 15;
+  try {
+    var q = parseFloat(new URLSearchParams(location.search).get('seconds'));
+    if (q >= 5 && q <= 120) secs = q;
+  } catch (err) {}
+  var DWELL = secs * 1000;
+  document.documentElement.style.setProperty('--dwell', secs + 's');
   var stage = document.getElementById('stage');
   var viewport = document.getElementById('viewport');
   var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
