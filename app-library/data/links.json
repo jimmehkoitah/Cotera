@@ -1,3 +1,9 @@
 {
-  "_how_to": "Map an agent ID to the link of that agent in your central Cotera instance, e.g. \"A01\": \"https://...\". Agents with a link show 'Open in Cotera'; the rest show 'Get this agent'. Rebuild after editing: python3 build.py"
+  "_how_to": "Map an agent ID to the link of that agent in your central Cotera instance, e.g. \"A01\": \"https://...\". Agents with a link show 'Open in Cotera'; the rest show 'Get this agent'. Rebuild after editing: python3 build.py",
+  "A28": "https://app.cotera.co/share/5d24ef0d9f09c551b01befbd83e3cb00017d68d3d438267148919fa4a0ea54ff",
+  "A38": "https://app.cotera.co/share/b900e9b0d14b19f95f09f40066248dc40c7340a02fc90e0aa4ffcc36490002e2",
+  "A32": "https://app.cotera.co/share/7e50e47c597b86ed20f7985b7182ebb923672f303c05ecc4b144f9b2757c57a8",
+  "A15": "https://app.cotera.co/share/737725475a70f1de64424d1c7ce0f2446a3076dee5a8bd317e872a0bdd7f6915",
+  "A42": "https://app.cotera.co/share/984f0c48a041efcf8c53873ed9a87c8f6e0091019133af0f9bbcd0c48a6dd1b8",
+  "A50": "https://app.cotera.co/share/7886df1a2a41a3ff822772fd3f7a0c2de418661ed75312b82c93df466b164eb1"
 }
