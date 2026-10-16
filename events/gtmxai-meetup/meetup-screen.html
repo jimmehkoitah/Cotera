@@ -18,6 +18,8 @@
   --ink: #1e2433;
   --slate: #576280;
   --label: #6b7590;
+  --layer: #ebe8de;
+  --rule-strong: #bdb8ab;
   --serif: "Newsreader", Georgia, serif;
   --sans: "Inter", "Helvetica Neue", Arial, sans-serif;
   --mono: "DM Mono", ui-monospace, Menlo, monospace;
@@ -81,18 +83,38 @@ h2 { font-size: 72px; line-height: 1.06; max-width: 22ch; }
 .strip h3 { font-family: var(--serif); font-weight: 400; font-size: 36px; color: var(--blue); margin: 0; }
 .strip p { margin: 0; font-size: 23px; line-height: 1.4; color: var(--slate); }
 
-/* How it works: five layers, read bottom to top */
-.layers-wrap { display: grid; grid-template-columns: 1fr 420px; gap: 56px; align-items: start; }
-.layers { display: flex; flex-direction: column-reverse; gap: 10px; margin: 0; padding: 0; list-style: none; }
-.layers li { display: grid; grid-template-columns: 40px 1fr; align-items: center; gap: 18px; padding: 13px 26px; border: 1.5px solid var(--rule); border-radius: 14px; background: var(--surface); }
-.layers li:first-child { background: var(--blue-soft); border-color: var(--blue-soft); }
-.layers li:last-child { background: var(--blue); border-color: var(--blue); }
-.layers li:last-child .n, .layers li:last-child strong, .layers li:last-child span { color: var(--on-blue); }
-.layers .n { font-family: var(--mono); font-size: 24px; color: var(--blue); }
-.layers strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 31px; color: var(--ink); line-height: 1.15; }
-.layers span { display: block; font-size: 21px; color: var(--slate); margin-top: 2px; }
-.slide.how { gap: 30px; }
-.slide.how h2 { max-width: none; }
+/* How it works: Salia's five layers, Datasets up to Workflows, read bottom to top */
+.slide.how { gap: 22px; padding-top: 48px; }
+.slide.how h2 { font-size: 56px; max-width: none; color: var(--ink); }
+.slide.how h2 em { font-style: normal; color: var(--blue); }
+.stack { display: grid; grid-template-columns: 52px 1fr 330px; column-gap: 26px; row-gap: 12px; margin: 0; padding: 0; list-style: none; }
+.stack li.head { display: block; grid-column: 3; font-family: var(--mono); font-size: 16px; letter-spacing: 2.5px; color: var(--label); padding-left: 26px; margin-bottom: -4px; }
+.stack li { display: contents; }
+.stack .dot { position: relative; align-self: center; justify-self: center; width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--blue); background: var(--surface); color: var(--blue); font-family: var(--mono); font-size: 19px; display: grid; place-items: center; box-sizing: border-box; }
+/* arrow from each layer up to the one above it: arrowhead under the upper dot, line down to the next dot */
+.stack li:not(:last-child) .dot::before { content: ""; position: absolute; top: calc(100% + 3px); left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-bottom: 8px solid var(--blue); border-top: 0; }
+.stack li:not(:last-child) .dot::after { content: ""; position: absolute; top: calc(100% + 10px); left: 50%; width: 2px; transform: translateX(-50%); height: 35px; background: var(--blue); }
+.stack .card { height: 84px; box-sizing: border-box; border-radius: 16px; padding: 0 30px; display: grid; align-content: center; gap: 4px; background: var(--layer); border: 2px solid var(--layer); }
+.stack .card strong { font-family: var(--serif); font-weight: 400; font-size: 29px; line-height: 1.1; color: var(--ink); }
+.stack .card span { font-size: 19px; color: var(--slate); white-space: nowrap; }
+.stack .top .dot { background: var(--blue); color: var(--on-blue); }
+.stack .top .card { background: var(--blue); border-color: var(--blue); }
+.stack .top .card strong, .stack .top .card span { color: var(--on-blue); }
+.stack .base .card { background: var(--surface); border-color: var(--blue); }
+.stack .tag { align-self: stretch; display: flex; align-items: center; border-left: 1.5px solid var(--rule); padding-left: 26px; font-family: var(--mono); font-size: 15px; letter-spacing: 1.4px; line-height: 1.5; color: var(--slate); text-transform: uppercase; white-space: nowrap; }
+
+/* Under the hood: Salia's architecture, warehouse down to the app */
+.slide.arch { gap: 22px; padding-top: 48px; }
+.slide.arch h2 { font-size: 60px; }
+.arch-grid { position: relative; display: grid; grid-template-columns: 430px 1fr; column-gap: 56px; row-gap: 18px; }
+.arch-grid::before { content: ""; position: absolute; left: 458px; top: 0; bottom: 0; width: 1.5px; background: var(--rule); }
+.arch-grid .box { position: relative; min-height: 72px; align-self: stretch; display: grid; place-items: center; border: 1.5px solid var(--rule); border-radius: 14px; background: var(--surface); font-size: 23px; font-weight: 500; color: var(--ink); }
+.arch-grid .box:not(.last)::after { content: ""; position: absolute; top: calc(100% + 2px); left: 50%; transform: translateX(-50%); width: 2px; height: 8px; background: var(--rule-strong); }
+.arch-grid .box:not(.last)::before { content: ""; position: absolute; top: calc(100% + 10px); left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top: 6px solid var(--rule-strong); border-bottom: 0; }
+.arch-grid .txt { align-self: center; display: grid; gap: 4px; }
+.arch-grid .txt h3 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 27px; line-height: 1.15; color: var(--blue); }
+.arch-grid .txt p { margin: 0; font-size: 19px; line-height: 1.4; color: var(--slate); }
+.underneath { border: 1.5px solid var(--rule); border-radius: 14px; background: var(--layer); padding: 16px 24px; text-align: center; font-size: 20px; color: var(--ink); white-space: nowrap; }
 .nowrap { white-space: nowrap; }
 .side-note { font-size: 27px; line-height: 1.5; color: var(--slate); margin: 0; text-wrap: pretty; }
 .side-note b { color: var(--blue); font-weight: 500; }
@@ -180,18 +202,16 @@ body.paused .dots .cur .bar::after { animation-play-state: paused; }
     </section>
 
     <section class="slide how" data-name="How it works">
-      <div class="eyebrow">How it works</div>
-      <h2>Five layers, read from the bottom up.</h2>
-      <div class="layers-wrap">
-        <ol class="layers">
-          <li><span class="n">1</span><div><strong>Your warehouse</strong><span>Snowflake, BigQuery, Redshift, Postgres, DuckDB</span></div></li>
-          <li><span class="n">2</span><div><strong>Query engine</strong><span>Runs inside your warehouse, nothing copied out</span></div></li>
-          <li><span class="n">3</span><div><strong>Models and workflows</strong><span>Audiences, scores and automations</span></div></li>
-          <li><span class="n">4</span><div><strong>Integrations</strong><span>Apollo, Braze, Shopify, Slack and more</span></div></li>
-          <li><span class="n">5</span><div><strong>The app and Coco</strong><span>Click through it, or just ask</span></div></li>
-        </ol>
-        <p class="side-note"><b>Your data never leaves your warehouse.</b> Cotera reads it where it is, turns it into audiences and automations, pushes the results into your GTM tools, and lets your team drive all of it from the app or by asking Coco.</p>
-      </div>
+      <div class="eyebrow">How Cotera works · Five layers</div>
+      <h2>From your data up to automations. <em>Read it bottom to top.</em></h2>
+      <ol class="stack" reversed>
+        <li class="head">IN COTERA</li>
+        <li class="top"><span class="dot">05</span><div class="card"><strong>Workflows</strong><span>Automations that run agents and tools on a schedule or a trigger</span></div><div class="tag">Schedule · Webhook · Manual</div></li>
+        <li><span class="dot">04</span><div class="card"><strong>Agents</strong><span>AI that reasons over your datasets and docs, and acts through tools</span></div><div class="tag">Chat agents · Dataset agents</div></li>
+        <li><span class="dot">03</span><div class="card"><strong>Tools</strong><span>The actions the platform can take: look up, enrich, message, update</span></div><div class="tag">Hundreds + custom on demand</div></li>
+        <li><span class="dot">02</span><div class="card"><strong>Docs</strong><span>The written context agents read: definitions, playbooks, know-how</span></div><div class="tag">@document in Coco</div></li>
+        <li class="base"><span class="dot">01</span><div class="card"><strong>Datasets</strong><span>Your data, modeled into clean, queryable datasets: the source of truth</span></div><div class="tag">Snowflake · BigQuery · CSV</div></li>
+      </ol>
     </section>
 
     <section class="slide" data-name="Your CRM">
@@ -219,17 +239,22 @@ body.paused .dots .cur .bar::after { animation-play-state: paused; }
       </div>
     </section>
 
-    <section class="slide" data-name="Under the hood">
+    <section class="slide arch" data-name="Under the hood">
       <div class="eyebrow">For the technical crowd</div>
       <h2>Under the hood.</h2>
-      <div class="grid2 grid3">
-        <div><h3>ERA</h3><p>Our query layer. Write the logic once and it compiles to each warehouse's own SQL.</p></div>
-        <div><h3>Warehouse-native</h3><p>Queries run inside your warehouse. "Your data stays put" is the architecture.</p></div>
-        <div><h3>Durable execution</h3><p>Multi-step workflows are journaled, so they resume after a restart.</p></div>
-        <div><h3>Coco uses real tools</h3><p>The agent calls the same actions the UI exposes. It grows with the product.</p></div>
-        <div><h3>Model-agnostic</h3><p>Frontier models through one gateway, never locked to a single vendor.</p></div>
-        <div><h3>Fully isolated tenants</h3><p>One platform, with separate data and logic for every customer.</p></div>
+      <div class="arch-grid">
+        <div class="box">1 · Your warehouse</div>
+        <div class="txt"><h3>Your data stays put</h3><p>Snowflake, BigQuery, Redshift, Postgres or DuckDB — Cotera never copies it out.</p></div>
+        <div class="box">2 · ERA (query engine)</div>
+        <div class="txt"><h3>Write the logic once</h3><p>ERA turns it into each warehouse's own SQL and runs it inside the warehouse.</p></div>
+        <div class="box">3 · Models and workflows</div>
+        <div class="txt"><h3>Automations that don't drop</h3><p>Long workflows are journaled (Restate), so they resume safely after a restart.</p></div>
+        <div class="box">4 · Integrations</div>
+        <div class="txt"><h3>Pushes into your GTM tools</h3><p>Connectors for Klaviyo, Braze, Shopify, Slack and more, plus webhooks.</p></div>
+        <div class="box last">5 · App and Coco</div>
+        <div class="txt"><h3>Coco is an AI agent, not a chatbot</h3><p>It does what a person can in the app, in plain language — and isn't tied to one model vendor.</p></div>
       </div>
+      <div class="underneath">Underneath: SSO + permissions (WorkOS), usage billing (Orb), on Google Cloud, multi-tenant and isolated</div>
     </section>
 
   </main>
